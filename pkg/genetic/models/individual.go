@@ -42,16 +42,19 @@ type Individual struct {
 
 // The initial state of current cluster before rescheduling
 // init the individual
-func (info *Individual) init(state map[string]string,
-	nodes []Node, tasks []Task, node_num int) {
-	info.AllTasks = make(map[string]Task, len(state))
-	info.AllNodes = make(map[string]Node, node_num)
+//
+// every `Node` contains tasks list and resources usage state
+// `num_tasks` is the number of current pods
+func (info *Individual) init(nodes []Node, num_tasks int) {
+	info.OrignalAssignment = make(map[string]string, num_tasks)
+	info.AllTasks = make(map[string]Task, num_tasks)
+	info.AllNodes = make(map[string]Node, len(nodes))
 
 	for _, node := range nodes {
 		info.AllNodes[node.ID] = node
+		for key, task := range node.Tasks {
+			info.AllTasks[key] = task
+			info.OrignalAssignment[node.ID] = task.TaskID
+		}
 	}
-	for _, task := range tasks {
-		info.AllTasks[task.TaskID] = task
-	}
-
 }

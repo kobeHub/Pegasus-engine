@@ -5,8 +5,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic"
+	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
+	_ "github.com/kobeHub/Pegasus-engine/pkg/genetic/utils"
 )
 
 func main() {

@@ -12,7 +12,11 @@ func NewResource(cpuCores, memory float64) Resource {
 	}
 }
 
-func (info *Resource) Sub(ano *Resource) {
+func (info *Resource) Sub(ano Resource) {
 	info.cpuCores -= ano.cpuCores
 	info.memory -= ano.memory
+}
+
+func (info *Resource) ClonePtr() *Resource {
+	return &Resource{info.cpuCores, info.memory}
 }
