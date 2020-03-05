@@ -5,12 +5,12 @@ package main
 import (
 	"fmt"
 
-	"pkg/genetic/models/Individual"
-	// "pegasus-engine.localhost/pkg/genetic/Population"
+	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
+	"github.com/kobeHub/Pegasus-engine/pkg/genetic"
 )
 
 func main() {
 	fmt.Println("Welcome to pegasus-engine:", "Inno")
-	var test = make([]*Individual, 2)
+	var test genetic.Population = make([]*models.Individual, 2)
 	fmt.Println(test)
 }

@@ -1,7 +1,7 @@
 package genetic
 
 import (
-	"pegasus-engine/pkg/genetic/models/Individual"
+	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
 
-type Population []*Individual
+type Population []*models.Individual

@@ -48,7 +48,7 @@ func (info *Individual) init(state map[string]string,
 	info.AllNodes = make(map[string]Node, node_num)
 
 	for _, node := range nodes {
-		info.AllTasks[node.ID] = node
+		info.AllNodes[node.ID] = node
 	}
 	for _, task := range tasks {
 		info.AllTasks[task.TaskID] = task

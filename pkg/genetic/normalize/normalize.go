@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math"
 
-	"pegasus.engine/pkg/genetic/Population"
+	"github.com/kobeHub/Pegasus-engine/pkg/genetic/Population"
 )
 
 func Normalize(populationWithOverflow Population) {
