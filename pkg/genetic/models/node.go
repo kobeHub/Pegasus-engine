@@ -2,9 +2,9 @@ package models
 
 type Node struct {
 	ID                 string
-	AvaliableResources Resource
-	RemainingResources *Resource
-	Tasks              map[string]Task
+	AvailableResource Resource
+	RemainingResource *Resource
+	Pods              map[string]Pod
 
 	CpuWeight      float64
 	MemoryWeight   float64
@@ -13,16 +13,17 @@ type Node struct {
 }
 
 // Construct a `Node` use all resources, tasks list
-func NewNode(id string, all Resource, tasks map[string]Task) Node {
+func NewNode(id string, all Resource, pods map[string]Pod) Node {
 	var remaining *Resource = all.ClonePtr()
-	for _, task := range tasks {
-		remaining.Sub(task.RequiredResource)
+	for _, pod := range pods {
+		remaining.Sub(pod.RequiredResource)
+		pod.SetNode(id)
 	}
 	return Node{
 		ID:                 id,
-		AvaliableResources: all,
-		RemainingResources: remaining,
-		Tasks:              tasks,
+		AvailableResource: all,
+		RemainingResource: remaining,
+		Pods:              pods,
 		CpuWeight:          0.,
 		MemoryWeight:       0.,
 		CpuQuotient:        0.,

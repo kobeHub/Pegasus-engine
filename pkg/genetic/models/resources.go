@@ -20,3 +20,11 @@ func (info *Resource) Sub(ano Resource) {
 func (info *Resource) ClonePtr() *Resource {
 	return &Resource{info.cpuCores, info.memory}
 }
+
+func (info *Resource) CpuRest(avail Resource) float64 {
+	return info.cpuCores / avail.cpuCores
+}
+
+func (info *Resource) MemRest(avail Resource) float64 {
+	return info.memory / avail.memory
+}
