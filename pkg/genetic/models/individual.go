@@ -38,7 +38,7 @@ type Individual struct {
 	CrowdingDistance             float64
 
 	// NSGA-III
-	ConstrainedViolationValue float64
+	ConstraintedViolationValue float64
 	IsFeasible                bool
 }
 
@@ -121,4 +121,65 @@ func (info *Individual) resourceUtilization() float64 {
 				node.RemainingResource.MemRest(node.AvailableResource))
 	}
 	return value
+}
+
+// Raw check this `Individual` is superior than ano or not
+func (info *Individual) dominates(ano Individual) bool {
+	// no worse than
+	for i := 0; i < len(info.ObjectiveValues); i++ {
+		if info.ObjectiveValues[i] > ano.ObjectiveValues[i] {
+			return false
+		}
+	}
+
+	// One value is better than another's
+	for i := 0; i < len(info.ObjectiveValues); i++ {
+		if info.ObjectiveValues[i] < ano.ObjectiveValues[i] {
+			return true
+		}
+	}
+
+	return false
+}
+
+// crowdwd compate operator
+func (info *Individual) CrowdedCompareLess(ano Individual) bool {
+	return info.Rank < ano.Rank ||
+		((info.Rank == ano.Rank) && (info.CrowdingDistance > ano.CrowdingDistance))
+}
+
+// ********************* Feasible and constrained ***************************
+
+func (info *Individual) ComputeIsFeasible() bool {
+	for _, node := range info.AllNodes {
+		if node.RemainingResource.NotAvail() {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (info *Individual) ComputeConstrainedViolation() float64 {
+	value := 0.
+
+	for _, node := range info.AllNodes {
+		if node.RemainingResource.NoMem() {
+			value += math.Abs(node.RemainingResource.Mem())
+		}
+
+		if node.RemainingResource.NoCpu() {
+			value += math.Abs(node.RemainingResource.Cpu())
+		}
+	}
+	return value
+}
+
+func (info *Individual) ConstraintDominate(ano Individual) bool {
+	if (info.IsFeasible && !ano.IsFeasible ||
+		(!info.IsFeasible && !ano.IsFeasible && info.ConstraintedViolationValue < ano.ConstraintedViolationValue) || (info.IsFeasible && ano.IsFeasible && info.dominates(ano))) {
+		return true
+	} else {
+		return false
+	}
 }

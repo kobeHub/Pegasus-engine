@@ -1,6 +1,9 @@
 package genetic
 
 import (
+	"math"
+	"sort"
+
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
 

@@ -28,3 +28,23 @@ func (info *Resource) CpuRest(avail Resource) float64 {
 func (info *Resource) MemRest(avail Resource) float64 {
 	return info.memory / avail.memory
 }
+
+func (info *Resource) NotAvail() bool {
+	return info.cpuCores < 0 || info.memory < 0
+}
+
+func (info *Resource) NoMem() bool {
+	return info.memory < 0
+}
+
+func (info *Resource) NoCpu() bool {
+	return info.cpuCores < 0
+}
+
+func (info *Resource) Mem() float64 {
+	return info.memory
+}
+
+func (info *Resource) Cpu() float64 {
+	return info.cpuCores
+}
