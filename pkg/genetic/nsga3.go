@@ -10,6 +10,6 @@ type NSGA3 struct {
 	Ops NSGA2
 }
 
-func (info NSGA3) GenerateNextPopulation() {
+func (info NSGA3) GenerateNextPopulation(t int) {
 
 }

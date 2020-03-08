@@ -6,7 +6,7 @@ import (
 )
 
 // The NSGA-II implements
-type NSGA2 struct {}
+type NSGA2 struct{}
 
 // Perfoeming Fast none demainated sort
 func (info NSGA2) PerformFastNonDomainatedSort(popu Population) Fronts {
@@ -22,7 +22,7 @@ func (info NSGA2) PerformFastNonDomainatedSort(popu Population) Fronts {
 						ano,
 					)
 				} else {
-					individual.NumOfIndividualsDominateThis ++
+					individual.NumOfIndividualsDominateThis++
 				}
 			}
 		}
@@ -45,15 +45,15 @@ func (info NSGA2) PerformFastNonDomainatedSort(popu Population) Fronts {
 		// Change every deminated individuals states
 		for _, individual := range *fronts[frontCnt] {
 			for _, dominated := range individual.IndividualsDominatedByThis {
-				dominated.NumOfIndividualsDominateThis --
-				if dominated.NumOfIndividualsDominateThis == 0{
+				dominated.NumOfIndividualsDominateThis--
+				if dominated.NumOfIndividualsDominateThis == 0 {
 					dominated.Rank = frontCnt + 1
 					next = append(next, dominated)
 				}
 			}
 		}
 
-		frontCnt ++
+		frontCnt++
 		fronts = append(fronts, &next)
 	}
 
@@ -77,11 +77,11 @@ func (n NSGA2) ComputeCrowdingDistance(front Front) {
 		})
 		// First and last distance max
 		front[0].CrowdingDistance = math.MaxFloat64
-		front[len(front) - 1].CrowdingDistance = math.MaxFloat64
+		front[len(front)-1].CrowdingDistance = math.MaxFloat64
 
-		for j := 1; j < len(front) - 1; j++ {
+		for j := 1; j < len(front)-1; j++ {
 			front[j].CrowdingDistance = front[j].CrowdingDistance +
-				((front[j-1].ObjectiveValues[i] - front[j+1].ObjectiveValues[i]) / (front[0].ObjectiveValues[i] - front[len(front) - 1].ObjectiveValues[i]))
+				((front[j-1].ObjectiveValues[i] - front[j+1].ObjectiveValues[i]) / (front[0].ObjectiveValues[i] - front[len(front)-1].ObjectiveValues[i]))
 		}
 	}
 }

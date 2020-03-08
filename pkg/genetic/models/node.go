@@ -1,7 +1,7 @@
 package models
 
 type Node struct {
-	ID                 string
+	ID                string
 	AvailableResource Resource
 	RemainingResource *Resource
 	Pods              map[string]Pod
@@ -17,16 +17,23 @@ func NewNode(id string, all Resource, pods map[string]Pod) Node {
 	var remaining *Resource = all.ClonePtr()
 	for _, pod := range pods {
 		remaining.Sub(pod.RequiredResource)
-		pod.SetNode(id)
+		(&pod).SetNode(id)
 	}
 	return Node{
-		ID:                 id,
+		ID:                id,
 		AvailableResource: all,
 		RemainingResource: remaining,
 		Pods:              pods,
-		CpuWeight:          0.,
-		MemoryWeight:       0.,
-		CpuQuotient:        0.,
-		MemoryQuotient:     0.,
+		CpuWeight:         0.,
+		MemoryWeight:      0.,
+		CpuQuotient:       0.,
+		MemoryQuotient:    0.,
 	}
+}
+
+// Add one Pod to Node
+func (n *Node) AddPod(p *Pod) {
+	n.RemainingResource.Sub(p.RequiredResource)
+	n.Pods[p.PodID] = *p
+	p.SetNode(n.ID)
 }

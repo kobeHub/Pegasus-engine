@@ -2,12 +2,13 @@ package models
 
 // The phase of kubernetes Pod
 type PodPhase string
+
 const (
-	Pending PodPhase = "Pending"
-	Runing PodPhase = "Runing"
+	Pending   PodPhase = "Pending"
+	Runing    PodPhase = "Runing"
 	Succeeded PodPhase = "Succeeded"
-	Failed PodPhase = "Failed"
-	Unknown PodPhase = "Unknown"
+	Failed    PodPhase = "Failed"
+	Unknown   PodPhase = "Unknown"
 )
 
 type Pod struct {
@@ -19,8 +20,8 @@ type Pod struct {
 }
 
 func NewPod(id string, cpu, mem float64) Pod {
-	return Pod {
-		PodID:           id,
+	return Pod{
+		PodID:            id,
 		RequiredResource: NewResource(cpu, mem),
 		NodeID:           "",
 		Status:           Unknown,

@@ -20,8 +20,8 @@ type Individual struct {
 	// The pods layout before rescheduling
 	OrignalAssignment    map[string]string
 	AllNodes             map[string]Node
-	AllPods             map[string]Pod
-	NumOfUnassignedPods int
+	AllPods              map[string]Pod
+	NumOfUnassignedPods  int
 	NumOfUnassignedNodes int
 
 	// Objective valus, all the objective values to be optimized
@@ -39,23 +39,21 @@ type Individual struct {
 
 	// NSGA-III
 	ConstraintedViolationValue float64
-	IsFeasible                bool
+	IsFeasible                 bool
 }
 
 // The initial state of current cluster before rescheduling
-// init the individual
+// init the individual. Assume current k8s scheduler assign
+// all pods to nodes
 //
 // every `Node` contains tasks list and resources usage state
 // `num_tasks` is the number of current pods
-func (info *Individual) init(nodes []Node, pending_pods []Pod, num_run_pods int) {
-	info.OrignalAssignment = make(map[string]string, num_run_pods)
-	info.AllPods = make(map[string]Pod, num_run_pods+len(pending_pods))
+func (info *Individual) Init(nodes []Node, pods []Pod) {
+	info.OrignalAssignment = make(map[string]string, )
+	info.AllPods = make(map[string]Pod, len(pods))
 	info.AllNodes = make(map[string]Node, len(nodes))
-	info.NumOfUnassignedPods = len(pending_pods)
+	info.NumOfUnassignedPods = 0
 
-	for _, pt := range pending_pods {
-		info.AllPods[pt.PodID] = pt
-	}
 	for _, node := range nodes {
 		info.AllNodes[node.ID] = node
 		if len(node.Pods) == 0 {
@@ -64,7 +62,6 @@ func (info *Individual) init(nodes []Node, pending_pods []Pod, num_run_pods int)
 		}
 		for key, pod := range node.Pods {
 			info.AllPods[key] = pod
-			info.OrignalAssignment[pod.PodID] = node.ID
 		}
 	}
 	info.computeObjectiveValues()
@@ -176,8 +173,8 @@ func (info *Individual) ComputeConstrainedViolation() float64 {
 }
 
 func (info *Individual) ConstraintDominate(ano Individual) bool {
-	if (info.IsFeasible && !ano.IsFeasible ||
-		(!info.IsFeasible && !ano.IsFeasible && info.ConstraintedViolationValue < ano.ConstraintedViolationValue) || (info.IsFeasible && ano.IsFeasible && info.dominates(ano))) {
+	if info.IsFeasible && !ano.IsFeasible ||
+		(!info.IsFeasible && !ano.IsFeasible && info.ConstraintedViolationValue < ano.ConstraintedViolationValue) || (info.IsFeasible && ano.IsFeasible && info.dominates(ano)) {
 		return true
 	} else {
 		return false
