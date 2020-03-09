@@ -18,7 +18,7 @@ type Individual struct {
 	// is a schedule scheme
 	Assignment map[string]string
 	// The pods layout before rescheduling
-	OrignalAssignment    map[string]string
+	OriginalAssignment    map[string]string
 	AllNodes             map[string]Node
 	AllPods              map[string]Pod
 	NumOfUnassignedPods  int
@@ -42,32 +42,55 @@ type Individual struct {
 	IsFeasible                 bool
 }
 
-// The initial state of current cluster before rescheduling
-// init the individual. Assume current k8s scheduler assign
-// all pods to nodes
+// Initialize Individual according to `assign`, and all nodes
+// and Pod resource is known, set `Node` and `Pod` field
 //
-// every `Node` contains tasks list and resources usage state
-// `num_tasks` is the number of current pods
+// Before `Init` func, the Individual's Assignment(and original) need to be
+// set properly
+//
+// Node in `nodes` known: ID, AvailableResource, RemainingResource
+// Pod in `pods` known: PodID, Status, RequiredResource
 func (info *Individual) Init(nodes []Node, pods []Pod) {
-	info.OrignalAssignment = make(map[string]string, )
 	info.AllPods = make(map[string]Pod, len(pods))
 	info.AllNodes = make(map[string]Node, len(nodes))
-	info.NumOfUnassignedPods = 0
 
 	for _, node := range nodes {
+		// reset node's pods list
+		for pod := range node.Pods {
+			delete(node.Pods, pod)
+		}
+		node.RemainingResource = node.AvailableResource.ClonePtr()
 		info.AllNodes[node.ID] = node
-		if len(node.Pods) == 0 {
-			info.NumOfUnassignedNodes += 1
+	}
+	for _, pod := range pods {
+		info.AllPods[pod.PodID] = pod
+	}
+
+	info.NumOfUnassignedPods = 0
+	info.NumOfUnassignedNodes = 0
+	for pid, nid := range info.Assignment {
+		if len(nid) == 0 {
+			info.NumOfUnassignedPods += 1
 			continue
 		}
-		for key, pod := range node.Pods {
-			info.AllPods[key] = pod
+
+		pod := info.AllPods[pid]
+		node := info.AllNodes[nid]
+		node.AddPod(&pod)
+		info.AllPods[pid] = pod
+		info.AllNodes[nid] = node
+	}
+
+	for _, node := range info.AllNodes {
+		if len(node.Pods) == 0 {
+			info.NumOfUnassignedNodes += 1
 		}
 	}
-	info.computeObjectiveValues()
+
+	info.ComputeObjectiveValues()
 }
 
-func (info *Individual) computeObjectiveValues() {
+func (info *Individual) ComputeObjectiveValues() {
 	info.ObjectiveValues = make([]float64, 3)
 	info.ObjectiveValues = append(info.ObjectiveValues, info.spreadObjective())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.uniquenessObjective())

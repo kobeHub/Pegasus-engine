@@ -13,7 +13,7 @@ type Node struct {
 }
 
 // Construct a `Node` use all resources, tasks list
-func NewNode(id string, all Resource, pods map[string]Pod) Node {
+func NodeFromPods(id string, all Resource, pods map[string]Pod) Node {
 	var remaining *Resource = all.ClonePtr()
 	for _, pod := range pods {
 		remaining.Sub(pod.RequiredResource)
@@ -33,6 +33,9 @@ func NewNode(id string, all Resource, pods map[string]Pod) Node {
 
 // Add one Pod to Node
 func (n *Node) AddPod(p *Pod) {
+	if len(n.Pods) == 0 {
+		n.Pods = make(map[string]Pod)
+	}
 	n.RemainingResource.Sub(p.RequiredResource)
 	n.Pods[p.PodID] = *p
 	p.SetNode(n.ID)

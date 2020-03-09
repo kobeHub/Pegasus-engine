@@ -27,13 +27,14 @@ type Genetic struct {
 
 // Generate random feasible assign according to current
 // Pods and Nodes
-func (g Genetic) GenerateRandomFeasibleIndividual() *Individual {
+func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	nodes := make([]models.Node, len(g.AllNodes))
-	copy(nodes, g.AllNodes)
 
 	// Reset Nodes remaining resources
-	for i, node := range nodes {
-		nodes[i].RemainingResource = node.AvailableResource
+	for i, node := range g.AllNodes {
+		nodes[i] = models.Node {
+			RemainingResource: node.AvailableResource.ClonePtr(),
+		}
 	}
 
 	shuffleNodes(nodes)
@@ -44,7 +45,7 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *Individual {
 		for _, node := range nodes {
 			if pod.RequiredResource.Less(*node.RemainingResource) {
 				assign[pod.PodID] = node.ID
-				node.AddPod(&pod)
+				node.RemainingResource.Sub(pod.RequiredResource)
 			}
 			break
 		}
@@ -61,7 +62,7 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *Individual {
 }
 
 func (g Genetic) GenerateRandomFeasiblePopulation() Population {
-	popu := make([]*Individual, g.Size)
+	popu := make([]*models.Individual, g.Size)
 	for i := 0; i < g.Size; i++ {
 		popu[i] = g.GenerateRandomFeasibleIndividual()
 	}
@@ -70,19 +71,58 @@ func (g Genetic) GenerateRandomFeasiblePopulation() Population {
 
 //******** Individual operations to generate new *********
 
-// Select single point to crossover
-func (g Genetic) reproduce(first, second Individual) Individual {
+// Select random point to crossover
+func (g Genetic) reproduce(first, second models.Individual) models.Individual {
 	num_pods := len(first.AllPods)
 	newAssign := make(map[string]string, num_pods)
-	randomCut := random.Intn(num_pods)
+	randomCut := rand.Intn(num_pods)
 
+	// Before cutpoint from a, after from b
+	for i := 0; i < num_pods; i++ {
+		pod := g.AllPods[i]
+		if i < randomCut {
+			newAssign[pod.PodID] = first.Assignment[pod.PodID]
+		} else {
+			newAssign[pod.PodID] = second.Assignment[pod.PodID]
+		}
+	}
 
+	uid := xid.New()
+	info := models.Individual {
+		ID: uid.String(),
+		Assignment: newAssign,
+		OriginalAssignment: g.OriginalAssignment,
+	}
+	info.Init(g.AllNodes, g.AllPods)
+	info.ComputeObjectiveValues()
+	return info
 }
 
+// Mutate individual via 4 operations
+func (g Genetic) mutate(info *models.Individual) {
+	num_pods := len(g.AllPods)
+	num_nodes := len(g.AllNodes)
+
+	// Swap two random pods assign
+	swap := func(indi *models.Individual) {
+		p1 := g.AllPods[rand.Intn(num_pods)]
+		p2 := g.AllPods[rand.Intn(num_pods)]
+
+		nid1 := indi.Assignment[p1.PodID]
+		nid2 := indi.Assignment[p2.PodID]
+		indi.Assignment[p1.PodID] = nid2
+		indi.Assignment[p2.PodID] = nid1
+	}
+
+	// Change one pod assign to random one node
+	change := func(indi *INdividual) {
+		pid :=
+	}
+}
 
 //******************** utils ******************************
 
-func shuffleNodes(nodes []*models.Node) {
+func shuffleNodes(nodes []models.Node) {
 	rand.Seed(time.Now().UnixNano())
 	for n := len(nodes); n > 0; n-- {
 		index := rand.Intn(n)
