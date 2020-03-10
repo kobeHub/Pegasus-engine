@@ -1,21 +1,14 @@
 package genetic
 
 import (
-	"fmt"
+	_ "fmt"
 	"github.com/rs/xid"
-	"math"
+	_ "math"
 	"math/rand"
 	"time"
 
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
-
-// The `Population` of one generation, includes of individuals
-type Population []*models.Individual
-
-// Ordered individuals
-type Front []*models.Individual
-type Fronts []*Front
 
 type Genetic struct {
 	AllNodes           []models.Node
@@ -61,13 +54,86 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	return &info
 }
 
-func (g Genetic) GenerateRandomFeasiblePopulation() Population {
+func (g Genetic) GenerateRandomFeasiblePopulation() models.Population {
 	popu := make([]*models.Individual, g.Size)
 	for i := 0; i < g.Size; i++ {
 		popu[i] = g.GenerateRandomFeasibleIndividual()
 	}
 	return popu
 }
+
+// Combine two Populations into one
+func (g Genetic) combinePopulation(first, second models.Population) models.Population {
+	result := make([]*models.Individual, g.Size * 2)
+	for i := 0; i < g.Size; i++ {
+		result[i] = first[i]
+		result[i+g.Size] = second[i]
+	}
+	return result
+}
+
+// Select superior one from random two
+func (g Genetic) binarySelect(popu models.Population) models.Individual {
+	first := popu[rand.Intn(g.Size)]
+	second := popu[rand.Intn(g.Size)]
+
+	if first.CrowdedCompareLess(*second) {
+		return *first
+	} else {
+		return *second
+	}
+}
+
+// Constrainted nsga iii
+func (g Genetic) constraintedBinarySelect(popu models.Population) models.Individual {
+	first := popu[rand.Intn(g.Size / 2)]
+	second := popu[rand.Intn(g.Size/2 + rand.Intn(g.Size/2))]
+
+	if first.IsFeasible && !second.IsFeasible {
+		return *first
+	} else if !first.IsFeasible && second.IsFeasible {
+		return *second
+	} else if !first.IsFeasible && !second.IsFeasible {
+		if first.ConstraintedViolationValue > second.ConstraintedViolationValue {
+			return *second
+		} else if first.ConstraintedViolationValue < second.ConstraintedViolationValue {
+			return *first
+		} else {
+			if rand.Float64() > 0.5 {
+				return *first
+			} else {
+				return *second
+			}
+		}
+	} else {
+		if rand.Float64() > 0.5 {
+			return *first
+		} else {
+			return *second
+		}
+	}
+}
+
+// Make new population from parent
+func (g Genetic) makeNewPopulation(parent models.Population) models.Population {
+	new := make([]*models.Individual, g.Size)
+	var (
+		first models.Individual
+		second models.Individual
+	)
+	for i := 0; i < g.Size; i++ {
+		first = g.constraintedBinarySelect(parent)
+		second = g.constraintedBinarySelect(parent)
+		newIndi := g.reproduce(first, second)
+
+		if rand.Float64() > 0.5 {
+			g.mutate(&newIndi)
+		}
+		new[i] = &newIndi
+	}
+	return new
+}
+
 
 //******** Individual operations to generate new *********
 
@@ -115,9 +181,52 @@ func (g Genetic) mutate(info *models.Individual) {
 	}
 
 	// Change one pod assign to random one node
-	change := func(indi *INdividual) {
-		pid :=
+	change := func(indi *models.Individual) {
+		pid := g.AllPods[rand.Intn(num_pods)].PodID
+		nid := g.AllNodes[rand.Intn(num_nodes)].ID
+		indi.Assignment[pid] = nid
 	}
+
+	// Assign one unssigned pod to a rando nodes
+	assignUnassigned := func(indi *models.Individual) {
+		var unassignedId []string
+		for pid := range indi.Assignment {
+			if indi.Assignment[pid] == "" {
+				unassignedId = append(unassignedId, pid)
+			}
+		}
+		pid := unassignedId[rand.Intn(len(unassignedId))]
+		nid := g.AllNodes[rand.Intn(num_nodes)].ID
+		indi.Assignment[pid] = nid
+	}
+
+	// Unset one unassigned pod
+	unassignAssigned := func(indi *models.Individual) {
+		var ids []string
+		for pid, nid := range indi.Assignment {
+			if nid != "" {
+				ids = append(ids, pid)
+			}
+		}
+		pid := ids[rand.Intn(len(ids))]
+		indi.Assignment[pid] = ""
+	}
+
+	p := rand.Float64()
+	if p <= 0.25 {
+		change(info)
+	} else if p > 0.25 && p <= 0.5 {
+		swap(info)
+	} else if p > 0.5 && p <= 0.51 {
+		if !info.IsFeasible {
+			unassignAssigned(info)
+		}
+	} else if p > 0.51 && p <= 1.0 {
+		if info.NumOfUnassignedPods > 0 {
+			assignUnassigned(info)
+		}
+	}
+	info.ComputeObjectiveValues()
 }
 
 //******************** utils ******************************

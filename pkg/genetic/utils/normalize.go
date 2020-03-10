@@ -4,10 +4,10 @@ import (
 	"errors"
 	"math"
 
-	"github.com/kobeHub/Pegasus-engine/pkg/genetic"
+	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
 
-func Normalize(populationWithOverflow genetic.Population) {
+func Normalize(populationWithOverflow models.Population) {
 	numberOfObjectiveFunctions := len(populationWithOverflow[0].ObjectiveValues)
 	idealObjectivePoint := make([]float64, numberOfObjectiveFunctions)
 	extremeTranslatedObjectivePoints := make([][]float64, numberOfObjectiveFunctions)
@@ -45,7 +45,7 @@ func Normalize(populationWithOverflow genetic.Population) {
 	}
 }
 
-func computeTranslatedExtremeObjectivePoint(numberOfObjectiveFunctions int, indexOfObjectiveFunction int, populationWithOverflow genetic.Population) []float64 {
+func computeTranslatedExtremeObjectivePoint(numberOfObjectiveFunctions int, indexOfObjectiveFunction int, populationWithOverflow models.Population) []float64 {
 	randomTranslatedObjectiveValue := populationWithOverflow[0].TranslatedObjectiveValues
 	var extremeObjectivePoint []float64
 	weightVector := initWeightVector(numberOfObjectiveFunctions, indexOfObjectiveFunction)
@@ -62,7 +62,7 @@ func computeTranslatedExtremeObjectivePoint(numberOfObjectiveFunctions int, inde
 	return extremeObjectivePoint
 }
 
-func computeExtremeObjectivePoint(numberOfObjectiveFunctions int, indexOfObjectiveFunction int, populationWithOverflow genetic.Population) []float64 {
+func computeExtremeObjectivePoint(numberOfObjectiveFunctions int, indexOfObjectiveFunction int, populationWithOverflow models.Population) []float64 {
 	randomObjectiveValue := populationWithOverflow[0].ObjectiveValues
 	var extremeObjectivePoint []float64
 	weightVector := initWeightVector(numberOfObjectiveFunctions, indexOfObjectiveFunction)
@@ -79,13 +79,13 @@ func computeExtremeObjectivePoint(numberOfObjectiveFunctions int, indexOfObjecti
 	return extremeObjectivePoint
 }
 
-func translateObjectiveFunction(populationWithOverflow genetic.Population, indexOfObjectiveFunction int, idealValueOfObjectiveFunction float64) {
+func translateObjectiveFunction(populationWithOverflow models.Population, indexOfObjectiveFunction int, idealValueOfObjectiveFunction float64) {
 	for _, individual := range populationWithOverflow {
 		individual.TranslatedObjectiveValues[indexOfObjectiveFunction] = individual.ObjectiveValues[indexOfObjectiveFunction] - idealValueOfObjectiveFunction
 	}
 }
 
-func computeIdealObjectiveValue(populationWithOverflow genetic.Population, indexOfObjectiveFunction int) float64 {
+func computeIdealObjectiveValue(populationWithOverflow models.Population, indexOfObjectiveFunction int) float64 {
 	idealValueOfObjectiveFunction := populationWithOverflow[0].ObjectiveValues[indexOfObjectiveFunction]
 	for _, individual := range populationWithOverflow {
 		idealValueOfObjectiveFunction = math.Min(individual.ObjectiveValues[indexOfObjectiveFunction], idealValueOfObjectiveFunction)

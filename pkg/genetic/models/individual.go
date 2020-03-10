@@ -42,6 +42,13 @@ type Individual struct {
 	IsFeasible                 bool
 }
 
+// The `Population` of one generation, includes of individuals
+type Population []*Individual
+
+// Ordered individuals
+type Front []*Individual
+type Fronts []*Front
+
 // Initialize Individual according to `assign`, and all nodes
 // and Pod resource is known, set `Node` and `Pod` field
 //

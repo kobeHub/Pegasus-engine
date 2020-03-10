@@ -4,13 +4,12 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/kobeHub/Pegasus-engine/pkg/genetic"
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
 
-func Niching(numberOfRemainingIndividuals int, temporaryPopulation *genetic.Population,
-	referencePoints []*models.ReferencePoint, lastFront *genetic.Front,
-	incompleteNextPopulation *genetic.Population) {
+func Niching(numberOfRemainingIndividuals int, temporaryPopulation *models.Population,
+	referencePoints []*models.ReferencePoint, lastFront *models.Front,
+	incompleteNextPopulation *models.Population) {
 	k := 0
 	sum := 0
 	for _, ref := range referencePoints {
@@ -66,8 +65,8 @@ func findReferencePointsWithMinNicheCount(
 	return referencePointsThatHasMinNicheCount
 }
 
-func findIndividualsBelongToMinReferencePointAndLastFront(population *genetic.Population,
-	lastFront genetic.Front, referencePointWithMinNicheCount models.ReferencePoint) []*models.Individual {
+func findIndividualsBelongToMinReferencePointAndLastFront(population *models.Population,
+	lastFront models.Front, referencePointWithMinNicheCount models.ReferencePoint) []*models.Individual {
 	var individualsBelongToReferencePointWithMinNicheCount []*models.Individual
 	for _, individualInLastFront := range lastFront {
 		if individualInLastFront.ReferencePoint.ID == referencePointWithMinNicheCount.ID {
@@ -91,7 +90,7 @@ func getIndividualWithMinPerpendicularDistance(
 }
 
 func removeIndividualFromLastFront(individual models.Individual,
-	lastFront *genetic.Front) {
+	lastFront *models.Front) {
 	indexOfIndividual := 0
 	for i, individualInLastFront := range *lastFront {
 		if individual.ID == individualInLastFront.ID {
