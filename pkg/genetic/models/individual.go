@@ -8,7 +8,10 @@ genetic algorithm. including:
 */
 package models
 
-import "math"
+import (
+	"math"
+	"time"
+)
 
 // The item of genetic algorithm, one individual is
 // is one entry during the evolution
@@ -18,7 +21,7 @@ type Individual struct {
 	// is a schedule scheme
 	Assignment map[string]string
 	// The pods layout before rescheduling
-	OriginalAssignment    map[string]string
+	OriginalAssignment   map[string]string
 	AllNodes             map[string]Node
 	AllPods              map[string]Pod
 	NumOfUnassignedPods  int
@@ -34,7 +37,7 @@ type Individual struct {
 	// NSGA-II
 	IndividualsDominatedByThis   []*Individual
 	NumOfIndividualsDominateThis int
-	Rank                         int
+	Rank                         int // smalller superior
 	CrowdingDistance             float64
 
 	// NSGA-III
@@ -98,7 +101,8 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 }
 
 func (info *Individual) ComputeObjectiveValues() {
-	info.ObjectiveValues = make([]float64, 3)
+	info.ObjectiveValues = make([]float64, 4)
+	info.ObjectiveValues = append(info.ObjectiveValues, info.ondemandPrice())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.spreadObjective())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.uniquenessObjective())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.resourceUtilization())
@@ -148,6 +152,14 @@ func (info *Individual) resourceUtilization() float64 {
 				node.RemainingResource.MemRest(node.AvailableResource))
 	}
 	return value
+}
+
+func (info *Individual) ondemandPrice() float64 {
+	price := 0.
+	for _, node := range info.AllNodes {
+		price += time.Now().UTC().Sub(node.RunFrom).Hours() * node.Price
+	}
+	return price
 }
 
 // Raw check this `Individual` is superior than ano or not

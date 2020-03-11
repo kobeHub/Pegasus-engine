@@ -25,7 +25,7 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 
 	// Reset Nodes remaining resources
 	for i, node := range g.AllNodes {
-		nodes[i] = models.Node {
+		nodes[i] = models.Node{
 			RemainingResource: node.AvailableResource.ClonePtr(),
 		}
 	}
@@ -45,8 +45,8 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	}
 
 	info := models.Individual{
-		ID: uid.String(),
-		Assignment: assign,
+		ID:                 uid.String(),
+		Assignment:         assign,
 		OriginalAssignment: g.OriginalAssignment,
 	}
 
@@ -62,9 +62,15 @@ func (g Genetic) GenerateRandomFeasiblePopulation() models.Population {
 	return popu
 }
 
+// Use cluster current state initialize population
+func (g Genetic) GenerateInitPopulation() models.Population {
+	popu := make([]*models.Individual, g.Size)
+	return popu
+}
+
 // Combine two Populations into one
 func (g Genetic) combinePopulation(first, second models.Population) models.Population {
-	result := make([]*models.Individual, g.Size * 2)
+	result := make([]*models.Individual, g.Size*2)
 	for i := 0; i < g.Size; i++ {
 		result[i] = first[i]
 		result[i+g.Size] = second[i]
@@ -86,8 +92,8 @@ func (g Genetic) binarySelect(popu models.Population) models.Individual {
 
 // Constrainted nsga iii
 func (g Genetic) constraintedBinarySelect(popu models.Population) models.Individual {
-	first := popu[rand.Intn(g.Size / 2)]
-	second := popu[rand.Intn(g.Size/2 + rand.Intn(g.Size/2))]
+	first := popu[rand.Intn(g.Size/2)]
+	second := popu[rand.Intn(g.Size/2+rand.Intn(g.Size/2))]
 
 	if first.IsFeasible && !second.IsFeasible {
 		return *first
@@ -118,7 +124,7 @@ func (g Genetic) constraintedBinarySelect(popu models.Population) models.Individ
 func (g Genetic) makeNewPopulation(parent models.Population) models.Population {
 	new := make([]*models.Individual, g.Size)
 	var (
-		first models.Individual
+		first  models.Individual
 		second models.Individual
 	)
 	for i := 0; i < g.Size; i++ {
@@ -134,6 +140,27 @@ func (g Genetic) makeNewPopulation(parent models.Population) models.Population {
 	return new
 }
 
+// Run genetic algirithm NSGA3 implements
+func (g Genetic) RunGeneticNSGA3(num_segaments int) models.Population {
+	nsga3 := NSGA3{
+		Ops: NSGA2{},
+	}
+	parent := g.GenerateInitPopulation()
+
+	for t := 0; t < g.GenerationNum; t++ {
+		rps := nsga3.GetReferencePoints(len(parent[0].ObjectiveValues), num_segaments)
+		nextPopu := nsga3.GenerateNextPopulation(t, g, parent, rps)
+		parent = nextPopu
+		for _, indi := range parent {
+			indi.ReferencePoint = models.ReferencePoint{}
+			indi.PerpendicularDistance = 0
+			indi.IndividualsDominatedByThis = []*models.Individual{}
+			indi.NumOfIndividualsDominateThis = 0
+			indi.Rank = 0
+		}
+	}
+	return parent
+}
 
 //******** Individual operations to generate new *********
 
@@ -154,9 +181,9 @@ func (g Genetic) reproduce(first, second models.Individual) models.Individual {
 	}
 
 	uid := xid.New()
-	info := models.Individual {
-		ID: uid.String(),
-		Assignment: newAssign,
+	info := models.Individual{
+		ID:                 uid.String(),
+		Assignment:         newAssign,
 		OriginalAssignment: g.OriginalAssignment,
 	}
 	info.Init(g.AllNodes, g.AllPods)

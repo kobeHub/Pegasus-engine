@@ -21,20 +21,20 @@ func Associate(currentPopulation models.Population, referencePoints []*models.Re
 	}
 }
 
-func ComputePerpendicularDistance(normalizedObjectiveValues []float64, referencePoint models.ReferencePoint, numberOfObjectiveValues int) float64{
+func ComputePerpendicularDistance(normalizedObjectiveValues []float64, referencePoint models.ReferencePoint, numberOfObjectiveValues int) float64 {
 	numerator := 0.0
 	denominator := 0.0
-	for i := 0; i < numberOfObjectiveValues; i++{
-		numerator += normalizedObjectiveValues[i]*referencePoint.Coordinates[i]
+	for i := 0; i < numberOfObjectiveValues; i++ {
+		numerator += normalizedObjectiveValues[i] * referencePoint.Coordinates[i]
 		denominator += math.Pow(referencePoint.Coordinates[i], 2.0)
 	}
 
-	ratio := numerator/denominator
+	ratio := numerator / denominator
 
 	distance := 0.0
 
-	for i := 0; i < numberOfObjectiveValues; i++{
-		distance += math.Pow(referencePoint.Coordinates[i]*ratio - normalizedObjectiveValues[i], 2.0)
+	for i := 0; i < numberOfObjectiveValues; i++ {
+		distance += math.Pow(referencePoint.Coordinates[i]*ratio-normalizedObjectiveValues[i], 2.0)
 	}
 
 	return math.Sqrt(distance)

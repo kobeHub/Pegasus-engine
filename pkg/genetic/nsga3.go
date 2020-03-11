@@ -25,9 +25,9 @@ func (info NSGA3) GenerateNextPopulation(t int, g Genetic, parent models.Populat
 
 	// Fast non deminate sort
 	fronts := info.Ops.PerformFastNonDominatedSort(unionPaNew)
-	for ;len(tmpPopu) <= g.Size; {
+	for len(tmpPopu) <= g.Size {
 		info.unionFrontWithTmp(&tmpPopu, *fronts[cnt])
-		cnt ++
+		cnt++
 	}
 
 	lastFront := fronts[cnt-1]
@@ -60,7 +60,7 @@ func (info NSGA3) computeNicheCount(tmpPopu models.Population, rps []*models.Ref
 	for _, indi := range tmpPopu {
 		for _, rp := range rps {
 			if indi.ReferencePoint.ID == rp.ID {
-				rp.NicheCount ++
+				rp.NicheCount++
 			}
 		}
 	}
@@ -82,13 +82,12 @@ func (info NSGA3) GetReferencePoints(num_objective, num_segament int) []*models.
 	for _, item := range rpsc {
 		uid := xid.New()
 		result = append(result, &models.ReferencePoint{
-			ID: uid.String(),
+			ID:          uid.String(),
 			Coordinates: item.Coordinates,
 		})
 	}
 	return result
 }
-
 
 func (info NSGA3) generateRPSC(rp models.ReferencePoint, num_objective, num_segament int) int {
 	if rp.Coordinates[0] < 0 {
@@ -99,8 +98,8 @@ func (info NSGA3) generateRPSC(rp models.ReferencePoint, num_objective, num_sega
 	for i := 1; i < num_objective; i++ {
 		newCoordinates := make([]float64, len(rp.Coordinates))
 		copy(newCoordinates, rp.Coordinates)
-		newCoordinates[0] = newCoordinates[0] - info.Round(1. / float64(num_segament))
-		newCoordinates[i] = newCoordinates[i] + info.Round(1. / float64(num_segament))
+		newCoordinates[0] = newCoordinates[0] - info.Round(1./float64(num_segament))
+		newCoordinates[i] = newCoordinates[i] + info.Round(1./float64(num_segament))
 		if _, exist := rpsCoordinates[fmt.Sprint(newCoordinates)]; !exist {
 			newRP := models.ReferencePoint{Coordinates: newCoordinates}
 			info.generateRPSC(newRP, num_objective, num_segament)
@@ -111,6 +110,6 @@ func (info NSGA3) generateRPSC(rp models.ReferencePoint, num_objective, num_sega
 }
 
 func (info NSGA3) Round(num float64) float64 {
-	float, _:= strconv.ParseFloat(fmt.Sprint("%.2f", num), 64)
+	float, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", num), 64)
 	return float
 }

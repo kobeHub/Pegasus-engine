@@ -1,10 +1,16 @@
 package models
 
+import "time"
+
 type Node struct {
 	ID                string
 	AvailableResource Resource
 	RemainingResource *Resource
-	Pods              map[string]Pod
+	// On-demand to pay price (￥/h), package in mouthly price is 0
+	Price float64
+	// Use UTC time to record the node started timestamp
+	RunFrom time.Time
+	Pods    map[string]Pod
 
 	CpuWeight      float64
 	MemoryWeight   float64
