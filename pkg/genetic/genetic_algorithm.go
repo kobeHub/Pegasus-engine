@@ -145,7 +145,8 @@ func (g Genetic) RunGeneticNSGA3(num_segaments int) models.Population {
 	nsga3 := NSGA3{
 		Ops: NSGA2{},
 	}
-	parent := g.GenerateInitPopulation()
+	// TODO: init generation
+	parent := g.GenerateRandomFeasiblePopulation()
 
 	for t := 0; t < g.GenerationNum; t++ {
 		rps := nsga3.GetReferencePoints(len(parent[0].ObjectiveValues), num_segaments)

@@ -19,17 +19,29 @@ type Node struct {
 }
 
 // Construct a `Node` use all resources, tasks list
-func NodeFromPods(id string, all Resource, pods map[string]Pod) Node {
+func NewConsistNode(id string, all Resource) Node {
 	var remaining *Resource = all.ClonePtr()
-	for _, pod := range pods {
-		remaining.Sub(pod.RequiredResource)
-		(&pod).SetNode(id)
-	}
 	return Node{
 		ID:                id,
 		AvailableResource: all,
 		RemainingResource: remaining,
-		Pods:              pods,
+		Price:             0.,
+		RunFrom:           time.Now().UTC(),
+		CpuWeight:         0.,
+		MemoryWeight:      0.,
+		CpuQuotient:       0.,
+		MemoryQuotient:    0.,
+	}
+}
+
+func NewDemandNode(id string, all Resource, price float64, run_from time.Time) Node {
+	var remaining *Resource = all.ClonePtr()
+	return Node{
+		ID:                id,
+		AvailableResource: all,
+		RemainingResource: remaining,
+		Price:             price,
+		RunFrom:           run_from,
 		CpuWeight:         0.,
 		MemoryWeight:      0.,
 		CpuQuotient:       0.,
