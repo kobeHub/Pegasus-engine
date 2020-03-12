@@ -43,9 +43,10 @@ func TestGeneticAlgorithm(t *testing.T) {
 		AllNodes: nodes,
 		AllPods: pods,
 		OriginalAssignment: make(map[string]string),
-		Size: viper.GetInt("PopulationSize"),
-		GenerationNum: viper.GetInt("NumOfGeneration"),
+		Size: 10,
+		GenerationNum: 6,
 	}
+	// t.Logf("Genetic: %v", g)
 
 	resPopu := g.RunGeneticNSGA3(viper.GetInt("NumOfSegament"))
 	t.Log(resPopu)

@@ -11,6 +11,8 @@ package models
 import (
 	"math"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // The item of genetic algorithm, one individual is
@@ -78,6 +80,8 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 
 	info.NumOfUnassignedPods = 0
 	info.NumOfUnassignedNodes = 0
+
+	log.Warn(len(info.Assignment))
 	for pid, nid := range info.Assignment {
 		if len(nid) == 0 {
 			info.NumOfUnassignedPods += 1
@@ -86,7 +90,19 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 
 		pod := info.AllPods[pid]
 		node := info.AllNodes[nid]
+		log.WithFields(log.Fields{
+			"node-remain": node.RemainingResource,
+			"pod-require": pod.RequiredResource,
+		}).Debug("Add pod before")
+
 		node.AddPod(&pod)
+
+		log.WithFields(log.Fields{
+			"node-remain": node.RemainingResource,
+			"pod-require": pod.RequiredResource,
+		}).Info("Add pod after")
+
+
 		info.AllPods[pid] = pod
 		info.AllNodes[nid] = node
 	}
@@ -97,15 +113,17 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 		}
 	}
 
-	info.ComputeObjectiveValues()
+	info.ComputeValues()
 }
 
-func (info *Individual) ComputeObjectiveValues() {
-	info.ObjectiveValues = make([]float64, 4)
+func (info *Individual) ComputeValues() {
+	info.ObjectiveValues = make([]float64, 0, 4)
 	info.ObjectiveValues = append(info.ObjectiveValues, info.ondemandPrice())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.spreadObjective())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.uniquenessObjective())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.resourceUtilization())
+	info.ComputeIsFeasible()
+	info.ComputeViolationValue()
 }
 
 // Compute the pods distribution value, the smaller has
@@ -199,7 +217,7 @@ func (info *Individual) ComputeIsFeasible() bool {
 	return true
 }
 
-func (info *Individual) ComputeConstrainedViolation() float64 {
+func (info *Individual) ComputeViolationValue() float64 {
 	value := 0.
 
 	for _, node := range info.AllNodes {

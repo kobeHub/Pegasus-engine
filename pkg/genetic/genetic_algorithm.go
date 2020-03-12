@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
+	log "github.com/sirupsen/logrus"
 )
 
 type Genetic struct {
@@ -26,6 +27,8 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	// Reset Nodes remaining resources
 	for i, node := range g.AllNodes {
 		nodes[i] = models.Node{
+			ID: node.ID,
+			AvailableResource: node.AvailableResource,
 			RemainingResource: node.AvailableResource.ClonePtr(),
 		}
 	}
@@ -35,23 +38,36 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	uid := xid.New()
 	assign := make(map[string]string, len(g.AllPods))
 	for _, pod := range g.AllPods {
+		assign[pod.PodID] = ""
 		for _, node := range nodes {
+			log.WithFields(log.Fields{
+				"pod": pod.RequiredResource,
+				"node": *node.RemainingResource,
+			}).Debug("Compare")
 			if pod.RequiredResource.Less(*node.RemainingResource) {
 				assign[pod.PodID] = node.ID
 				node.RemainingResource.Sub(pod.RequiredResource)
+				log.WithFields(log.Fields{
+					"pod": pod.RequiredResource,
+					"node": *node.RemainingResource,
+				}).Info("Compare after")
+				break
 			}
-			break
 		}
 	}
 
-	info := models.Individual{
+	info := &models.Individual{
 		ID:                 uid.String(),
 		Assignment:         assign,
 		OriginalAssignment: g.OriginalAssignment,
 	}
 
+	log.WithFields(log.Fields{
+		"RemainingResource": g.AllNodes[0].RemainingResource,
+	}).Debug("Before init individual")
+
 	info.Init(g.AllNodes, g.AllPods)
-	return &info
+	return info
 }
 
 func (g Genetic) GenerateRandomFeasiblePopulation() models.Population {
@@ -147,6 +163,7 @@ func (g Genetic) RunGeneticNSGA3(num_segaments int) models.Population {
 	}
 	// TODO: init generation
 	parent := g.GenerateRandomFeasiblePopulation()
+	// fmt.Printf("%v\n", parent[0])
 
 	for t := 0; t < g.GenerationNum; t++ {
 		rps := nsga3.GetReferencePoints(len(parent[0].ObjectiveValues), num_segaments)
@@ -188,7 +205,7 @@ func (g Genetic) reproduce(first, second models.Individual) models.Individual {
 		OriginalAssignment: g.OriginalAssignment,
 	}
 	info.Init(g.AllNodes, g.AllPods)
-	info.ComputeObjectiveValues()
+	// info.ComputeValues()
 	return info
 }
 
@@ -236,8 +253,10 @@ func (g Genetic) mutate(info *models.Individual) {
 				ids = append(ids, pid)
 			}
 		}
-		pid := ids[rand.Intn(len(ids))]
-		indi.Assignment[pid] = ""
+		if len(ids) > 0 {
+			pid := ids[rand.Intn(len(ids))]
+			indi.Assignment[pid] = ""
+		}
 	}
 
 	p := rand.Float64()
@@ -254,7 +273,7 @@ func (g Genetic) mutate(info *models.Individual) {
 			assignUnassigned(info)
 		}
 	}
-	info.ComputeObjectiveValues()
+	info.ComputeValues()
 }
 
 //******************** utils ******************************

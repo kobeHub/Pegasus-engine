@@ -22,7 +22,7 @@ func (info *Resource) ClonePtr() *Resource {
 }
 
 func (info *Resource) Less(ano Resource) bool {
-	return info.cpuCores <= ano.cpuCores && info.memory <= ano.memory
+	return (info.cpuCores <= ano.cpuCores) && (info.memory <= ano.memory)
 }
 
 func (info *Resource) CpuRest(avail Resource) float64 {

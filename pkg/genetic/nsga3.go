@@ -70,7 +70,7 @@ func (info NSGA3) computeNicheCount(tmpPopu models.Population, rps []*models.Ref
 var rpsCoordinates map[string]models.ReferencePoint
 
 func (info NSGA3) GetReferencePoints(num_objective, num_segament int) []*models.ReferencePoint {
-	rpsc := map[string]models.ReferencePoint{}
+	rpsCoordinates = make(map[string]models.ReferencePoint)
 	init_rpsc := make([]float64, num_objective)
 	init_rpsc[0] = 1.
 	init_rps := models.ReferencePoint{
@@ -79,7 +79,7 @@ func (info NSGA3) GetReferencePoints(num_objective, num_segament int) []*models.
 	info.generateRPSC(init_rps, num_objective, num_segament)
 
 	var result []*models.ReferencePoint
-	for _, item := range rpsc {
+	for _, item := range rpsCoordinates {
 		uid := xid.New()
 		result = append(result, &models.ReferencePoint{
 			ID:          uid.String(),

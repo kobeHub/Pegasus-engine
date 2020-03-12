@@ -51,10 +51,10 @@ func NewDemandNode(id string, all Resource, price float64, run_from time.Time) N
 
 // Add one Pod to Node
 func (n *Node) AddPod(p *Pod) {
-	if len(n.Pods) == 0 {
+	if n.Pods == nil {
 		n.Pods = make(map[string]Pod)
 	}
 	n.RemainingResource.Sub(p.RequiredResource)
-	n.Pods[p.PodID] = *p
 	p.SetNode(n.ID)
+	n.Pods[p.PodID] = *p
 }
