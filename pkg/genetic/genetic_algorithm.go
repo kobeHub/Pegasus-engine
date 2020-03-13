@@ -285,7 +285,6 @@ func shuffleNodes(nodes []models.Node) {
 	}
 }
 
-
 func (g Genetic) GetBestPriceIndividual(popu models.Population) models.Individual {
 	bestPrice := math.MaxFloat64
 	var bestId int

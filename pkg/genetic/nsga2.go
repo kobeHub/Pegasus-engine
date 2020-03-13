@@ -18,9 +18,9 @@ func (info NSGA2) PerformFastNonDominatedSort(popu models.Population) models.Fro
 	for _, individual := range popu {
 		// Record current `Individual` dominates states
 		log.WithFields(log.Fields{
-			"IsFeasible": individual.IsFeasible,
+			"IsFeasible":                 individual.IsFeasible,
 			"ConstraintedViolationValue": individual.ConstraintedViolationValue,
-			"Objective": individual.ObjectiveValues,
+			"Objective":                  individual.ObjectiveValues,
 			//"RemainingResource": individual.AllNodes,
 		}).Debug("Every individual")
 
