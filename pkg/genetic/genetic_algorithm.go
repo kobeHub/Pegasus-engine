@@ -1,9 +1,8 @@
 package genetic
 
 import (
-	_ "fmt"
 	"github.com/rs/xid"
-	_ "math"
+	"math"
 	"math/rand"
 	"time"
 
@@ -27,7 +26,7 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	// Reset Nodes remaining resources
 	for i, node := range g.AllNodes {
 		nodes[i] = models.Node{
-			ID: node.ID,
+			ID:                node.ID,
 			AvailableResource: node.AvailableResource,
 			RemainingResource: node.AvailableResource.ClonePtr(),
 		}
@@ -41,16 +40,16 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 		assign[pod.PodID] = ""
 		for _, node := range nodes {
 			log.WithFields(log.Fields{
-				"pod": pod.RequiredResource,
+				"pod":  pod.RequiredResource,
 				"node": *node.RemainingResource,
 			}).Debug("Compare")
 			if pod.RequiredResource.Less(*node.RemainingResource) {
 				assign[pod.PodID] = node.ID
 				node.RemainingResource.Sub(pod.RequiredResource)
 				log.WithFields(log.Fields{
-					"pod": pod.RequiredResource,
+					"pod":  pod.RequiredResource,
 					"node": *node.RemainingResource,
-				}).Info("Compare after")
+				}).Debug("Compare after")
 				break
 			}
 		}
@@ -284,4 +283,17 @@ func shuffleNodes(nodes []models.Node) {
 		index := rand.Intn(n)
 		nodes[n-1], nodes[index] = nodes[index], nodes[n-1]
 	}
+}
+
+
+func (g Genetic) GetBestPriceIndividual(popu models.Population) models.Individual {
+	bestPrice := math.MaxFloat64
+	var bestId int
+	for id, info := range popu {
+		if info.ObjectiveValues[0] < bestPrice {
+			bestPrice = info.ObjectiveValues[0]
+			bestId = id
+		}
+	}
+	return *popu[bestId]
 }

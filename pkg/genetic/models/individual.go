@@ -81,7 +81,6 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 	info.NumOfUnassignedPods = 0
 	info.NumOfUnassignedNodes = 0
 
-	log.Warn(len(info.Assignment))
 	for pid, nid := range info.Assignment {
 		if len(nid) == 0 {
 			info.NumOfUnassignedPods += 1
@@ -100,8 +99,7 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 		log.WithFields(log.Fields{
 			"node-remain": node.RemainingResource,
 			"pod-require": pod.RequiredResource,
-		}).Info("Add pod after")
-
+		}).Debug("Add pod after")
 
 		info.AllPods[pid] = pod
 		info.AllNodes[nid] = node
@@ -118,6 +116,8 @@ func (info *Individual) Init(nodes []Node, pods []Pod) {
 
 func (info *Individual) ComputeValues() {
 	info.ObjectiveValues = make([]float64, 0, 4)
+	info.TranslatedObjectiveValues = make([]float64, 4)
+	info.NormalizedObjectiveValues = make([]float64, 4)
 	info.ObjectiveValues = append(info.ObjectiveValues, info.ondemandPrice())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.spreadObjective())
 	info.ObjectiveValues = append(info.ObjectiveValues, info.uniquenessObjective())
@@ -207,17 +207,18 @@ func (info *Individual) CrowdedCompareLess(ano Individual) bool {
 
 // ********************* Feasible and constrained ***************************
 
-func (info *Individual) ComputeIsFeasible() bool {
+func (info *Individual) ComputeIsFeasible() {
 	for _, node := range info.AllNodes {
 		if node.RemainingResource.NotAvail() {
-			return false
+			info.IsFeasible = false
+			return
 		}
 	}
 
-	return true
+	info.IsFeasible = true
 }
 
-func (info *Individual) ComputeViolationValue() float64 {
+func (info *Individual) ComputeViolationValue() {
 	value := 0.
 
 	for _, node := range info.AllNodes {
@@ -229,11 +230,11 @@ func (info *Individual) ComputeViolationValue() float64 {
 			value += math.Abs(node.RemainingResource.Cpu())
 		}
 	}
-	return value
+	info.ConstraintedViolationValue = value
 }
 
 func (info *Individual) ConstraintDominate(ano Individual) bool {
-	if info.IsFeasible && !ano.IsFeasible ||
+	if (info.IsFeasible && !ano.IsFeasible) ||
 		(!info.IsFeasible && !ano.IsFeasible && info.ConstraintedViolationValue < ano.ConstraintedViolationValue) || (info.IsFeasible && ano.IsFeasible && info.dominates(ano)) {
 		return true
 	} else {

@@ -14,15 +14,16 @@ type NSGA2 struct{}
 // Perfoeming Fast none demainated sort
 func (info NSGA2) PerformFastNonDominatedSort(popu models.Population) models.Fronts {
 	var fronts models.Fronts
-	log.Info("Popu size:", len(popu))
-	log.WithFields(log.Fields{
-		"IsFeasible": popu[0].IsFeasible,
-		"ConstraintedViolationValue": popu[0].ConstraintedViolationValue,
-		"Objective": popu[0].ObjectiveValues,
-	}).Info("popu first")
 
 	for _, individual := range popu {
 		// Record current `Individual` dominates states
+		log.WithFields(log.Fields{
+			"IsFeasible": individual.IsFeasible,
+			"ConstraintedViolationValue": individual.ConstraintedViolationValue,
+			"Objective": individual.ObjectiveValues,
+			//"RemainingResource": individual.AllNodes,
+		}).Debug("Every individual")
+
 		for _, ano := range popu {
 			if individual.ID != ano.ID {
 				if individual.ConstraintDominate(*ano) {
@@ -30,12 +31,13 @@ func (info NSGA2) PerformFastNonDominatedSort(popu models.Population) models.Fro
 						individual.IndividualsDominatedByThis,
 						ano,
 					)
-				} else {
+				} else if ano.ConstraintDominate(*individual) {
 					individual.NumOfIndividualsDominateThis++
 				}
 			}
 		}
 
+		//log.Info(individual.IndividualsDominatedByThis, individual.NumOfIndividualsDominateThis)
 
 		// Check current individuals is best one
 		if individual.NumOfIndividualsDominateThis == 0 {
@@ -47,11 +49,9 @@ func (info NSGA2) PerformFastNonDominatedSort(popu models.Population) models.Fro
 		}
 	}
 
-	log.Info(fronts)
 	// Add the other order `Individual`
 	frontCnt := 0
 	for len(*fronts[frontCnt]) != 0 {
-		log.Info("Order cnt:", frontCnt)
 		var next models.Front
 
 		// Change every deminated individuals states
