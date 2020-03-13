@@ -20,7 +20,7 @@ func Param(ctx context.Context, k string) string {
 
 // Return a Context with param k set to v
 func WithParam(ctx context.Context, k, v string) context.Context {
-	return context.WithValue(ctx, param(p), v)
+	return context.WithValue(ctx, param(k), v)
 }
 
 // Wrap httprouter and support prefix group
@@ -39,7 +39,7 @@ func New() *Router {
 
 // Return router with default handler func
 func (info *Router) WithInstrumentation(instrh func(handlerName string, handler http.HandlerFunc) http.HandlerFunc) *Router {
-	if r.instrh != nil {
+	if info.instrh != nil {
 		newInstrh := instrh
 		instrh = func(handlerName string, handler http.HandlerFunc) http.HandlerFunc {
 			return newInstrh(handlerName, info.instrh(handlerName, handler))
@@ -51,13 +51,13 @@ func (info *Router) WithInstrumentation(instrh func(handlerName string, handler 
 
 // Return a group router with same prefix
 func (info *Router) WithPrefix(prefix string) *Router {
-	return &Router{r: info.r, prefix: r.prefix + prefix, instrh: info.instrh}
+	return &Router{r: info.r, prefix: info.prefix + prefix, instrh: info.instrh}
 }
 
 // Turn a HandlerFunc to httprouter.Handle
 func (info *Router) handle(handleName string, h http.HandlerFunc) httprouter.Handle {
 	if info.instrh != nil {
-		h = r.instrh(handleName, h)
+		h = info.instrh(handleName, h)
 	}
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		ctx, cancel := context.WithCancel(req.Context())
