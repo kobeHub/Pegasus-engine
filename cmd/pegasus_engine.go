@@ -3,10 +3,12 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -19,12 +21,15 @@ import (
 )
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	var environ string
 	if environ = os.Getenv("pegasus_env"); environ == "" {
 		environ = "local"
 	}
 	config.Init(environ)
-
 	var (
 		srvAddr = kingpin.Flag("listen-address",
 			"Cluster listen address, empty string to disable HA mode").Default(
@@ -44,7 +49,7 @@ func main() {
 			"Listen":  *srvAddr,
 			"Version": viper.GetString("Version"),
 		}).Info("Welcome to pegasus-engine")
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.WithFields(log.Fields{
 				"Error": err,
 			}).Error("Server listen error")
@@ -57,34 +62,35 @@ func main() {
 				}).Error("Error on closing the server")
 			}
 		}()
+
 	}()
 
 	var (
-		hup = make(chan os.Signal, 1)
-		//_hupReady = make(chan bool)
 		term = make(chan os.Signal, 1)
 	)
-	signal.Notify(hup, syscall.SIGHUP)
 	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
 
-	/*
-		go func() {
-			<-hupReady
-			for {
-				select {
-				case <-hup:
-
-				}
-			}
-		}()*/
 	for {
 		select {
 		case <-term:
 			log.Info("Received SIGTERM, exiting gracefully....")
-			os.Exit(0)
+			ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+			defer cancel()
+			if err := srv.Shutdown(ctx); err != nil {
+				log.WithFields(log.Fields{
+					"Error": err,
+				}).Error("Gracefully shutdown error")
+			}
+			// catching ctx.Done(). timeout of 1 seconds.
+			select {
+			case <-ctx.Done():
+				log.Info("Server timeout 1 seconds...")
+			}
+
+			return 0
 		case <-srvc:
 			log.Info("Error exist.")
-			os.Exit(1)
+			return 1
 		}
 	}
 }

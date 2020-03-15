@@ -58,8 +58,8 @@ func Middleware(h http.Handler) http.Handler {
 			remoteAddr = realIP
 		}
 		entry := log.WithFields(log.Fields{
-			"request":    r.RequestURI,
-			"method":     r.Method,
+			//"request":    r.RequestURI,
+			//"method":     r.Method,
 			"remote":     remoteAddr,
 			"user-agent": r.UserAgent(),
 			"referer":    r.Referer(),
@@ -77,10 +77,10 @@ func Middleware(h http.Handler) http.Handler {
 			fmt.Fprintf(&b, "%0.2f sec", float64(latency.Nanoseconds())/float64(1000*1000*1000))
 		}
 		entry.WithFields(log.Fields{
-			"status": res.Status(),
+			//"status": res.Status(),
 			"took":   b.String(),
 			"size":   res.Size(),
-		}).Info("completed handling request")
+		}).Info(fmt.Sprintf("%s %s %v", r.Method, r.RequestURI, res.Status()))
 	}
 	return http.HandlerFunc(fn)
 }
