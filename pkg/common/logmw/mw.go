@@ -78,8 +78,8 @@ func Middleware(h http.Handler) http.Handler {
 		}
 		entry.WithFields(log.Fields{
 			//"status": res.Status(),
-			"took":   b.String(),
-			"size":   res.Size(),
+			"took": b.String(),
+			"size": res.Size(),
 		}).Info(fmt.Sprintf("%s %s %v", r.Method, r.RequestURI, res.Status()))
 	}
 	return http.HandlerFunc(fn)

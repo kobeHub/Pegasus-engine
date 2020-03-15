@@ -1,11 +1,16 @@
-package v1
+// build +jsoniter
+
+package service
 
 import (
 	"fmt"
 	"net/http"
 
+	"github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type response struct {
 	Status    status      `json:"status"`

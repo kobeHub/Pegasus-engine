@@ -1,4 +1,4 @@
-package v1
+package service
 
 import "fmt"
 
@@ -23,12 +23,4 @@ type apiError struct {
 
 func (e *apiError) Error() string {
 	return fmt.Sprintf("%s: %s", e.typ, e.err)
-}
-
-var corsHeaders = map[string]string{
-	"Access-Control-Allow-Headers":  "Accept, Authorization, Content-Type, Origin",
-	"Access-Control-Allow-Methods":  "GET, POST, DELETE, OPTIONS",
-	"Access-Control-Allow-Origin":   "*",
-	"Access-Control-Expose-Headers": "Date",
-	"Cache-Control":                 "no-cache, no-store, must-revalidate",
 }

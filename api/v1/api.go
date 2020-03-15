@@ -1,3 +1,4 @@
+// +build jsoniter
 /*Pegasus-engine api version 1.0*/
 
 package v1
@@ -7,16 +8,23 @@ import (
 	"sync"
 	_ "time"
 
-	"github.com/json-iterator/go"
 	_ "github.com/sirupsen/logrus"
 
 	"github.com/kobeHub/Pegasus-engine/pkg/common/router"
+	"github.com/kobeHub/Pegasus-engine/api/v1/service"
 )
-
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type Api struct {
 	mtx sync.RWMutex
+}
+
+
+var corsHeaders = map[string]string{
+	"Access-Control-Allow-Headers":  "Accept, Authorization, Content-Type, Origin",
+	"Access-Control-Allow-Methods":  "GET, POST, DELETE, OPTIONS",
+	"Access-Control-Allow-Origin":   "*",
+	"Access-Control-Expose-Headers": "Date",
+	"Cache-Control":                 "no-cache, no-store, must-revalidate",
 }
 
 // Enable cross-site script calls
@@ -34,7 +42,9 @@ func Register(r *router.Router) {
 		})
 	}
 
-	r.Get("/", wrap(func(w http.ResponseWriter, r *http.Request) {
-		respond(w, "Pegasus-engine is healty!")
-	}))
+	r.Get("/", wrap(service.Hello))
+
+	r = r.WithPrefix("/api/v1")
+	r.Get("/", wrap(service.ApiHealthy))
+	r.Get("/nodes", wrap(service.GetNodes))
 }

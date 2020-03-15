@@ -16,15 +16,17 @@ import (
 
 	api "github.com/kobeHub/Pegasus-engine/api/v1"
 	"github.com/kobeHub/Pegasus-engine/config"
-	route "github.com/kobeHub/Pegasus-engine/pkg/common/router"
+	"github.com/kobeHub/Pegasus-engine/pkg/common/k8s"
 	"github.com/kobeHub/Pegasus-engine/pkg/common/logmw"
+	route "github.com/kobeHub/Pegasus-engine/pkg/common/router"
 )
 
 func main() {
-	os.Exit(run())
+	root := context.Background()
+	os.Exit(run(root))
 }
 
-func run() int {
+func run(ctx context.Context) int {
 	var environ string
 	if environ = os.Getenv("pegasus_env"); environ == "" {
 		environ = "local"
@@ -37,6 +39,7 @@ func run() int {
 	)
 	kingpin.Version(viper.GetString("version"))
 	kingpin.Parse()
+	k8s.Init(environ)
 
 	router := route.New()
 	api.Register(router)
@@ -74,7 +77,7 @@ func run() int {
 		select {
 		case <-term:
 			log.Info("Received SIGTERM, exiting gracefully....")
-			ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+			ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 			defer cancel()
 			if err := srv.Shutdown(ctx); err != nil {
 				log.WithFields(log.Fields{

@@ -25,7 +25,7 @@ func Init(env string) {
 	}
 	log.WithFields(log.Fields{
 		"file": config_file,
-	}).Info("Initialize config with file")
+	}).Debug("Initialize config with file")
 
 	viper.SetConfigFile(config_file)
 	viper.SetConfigType("dotenv")

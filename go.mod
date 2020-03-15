@@ -5,10 +5,13 @@ go 1.13
 require (
 	github.com/json-iterator/go v1.1.9
 	github.com/julienschmidt/httprouter v1.2.0
-	github.com/kobeHub/Pegasus-engine v0.0.0-20200304125750-9897480f90e9
+	github.com/kobeHub/Pegasus-engine v0.0.0-00010101000000-000000000000
 	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.6.2
+	k8s.io/api v0.0.0-20190819141258-3544db3b9e44
+	k8s.io/apimachinery v0.0.0-20190817020851-f2f3a405f61d
+	k8s.io/client-go v0.0.0-20190819141724-e14f31a72a77
 )
 
 replace github.com/kobeHub/Pegasus-engine => ./
