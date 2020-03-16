@@ -46,4 +46,5 @@ func Register(r *router.Router) {
 	r = r.WithPrefix("/api/v1")
 	r.Get("/", wrap(service.ApiHealthy))
 	r.Get("/nodes", wrap(service.GetNodes))
+	r.Get("/ns", wrap(service.GetNS))
 }

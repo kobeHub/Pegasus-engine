@@ -10,13 +10,16 @@ func TestGeneticAlgorithm(t *testing.T) {
 	start_time, _ := time.Parse("2006-01-02 15:04:05", "2020-03-01 01:01:01")
 	n1 := models.NewConsistNode(
 		"node1",
-		models.NewResource(8, 16384))
+		models.NewResource(8, 16384),
+		time.Now().UTC())
 	n2 := models.NewConsistNode(
 		"node2",
-		models.NewResource(4, 9046))
+		models.NewResource(4, 9046),
+		time.Now().UTC())
 	n3 := models.NewConsistNode(
 		"node3",
-		models.NewResource(2, 1024))
+		models.NewResource(2, 1024),
+		time.Now().UTC())
 	n4 := models.NewDemandNode(
 		"node4",
 		models.NewResource(6, 16384),

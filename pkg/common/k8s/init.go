@@ -5,13 +5,14 @@ import (
 	"path/filepath"
 
 	kube "k8s.io/client-go/kubernetes"
-	//corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 var client *kube.Clientset
+var corev1api corev1.CoreV1Interface
 
 func Init(env string) {
 	var config *rest.Config
@@ -39,5 +40,6 @@ func Init(env string) {
 			"Error": err,
 		}).Fatal("Get clientset error")
 	}
+	corev1api = client.CoreV1()
 	log.Info("k8s client initialized successfully")
 }

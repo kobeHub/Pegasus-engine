@@ -3,30 +3,30 @@ package models
 import "time"
 
 type Node struct {
-	ID                string
-	AvailableResource Resource
-	RemainingResource *Resource
+	ID                string    `json:"id,required"`
+	AvailableResource Resource  `json:"availableResource,required"`
+	RemainingResource *Resource `json:"remainingResouece,omitempty"`
 	// On-demand to pay price (￥/h), package in mouthly price is 0
-	Price float64
+	Price float64 `json:"price,omitempty"`
 	// Use UTC time to record the node started timestamp
-	RunFrom time.Time
-	Pods    map[string]Pod
+	RunFrom time.Time      `json:"runFrom,omitempty"`
+	Pods    map[string]Pod `json:"pods,omitempty"`
 
-	CpuWeight      float64
-	MemoryWeight   float64
-	CpuQuotient    float64
-	MemoryQuotient float64
+	CpuWeight      float64 `json:"-"`
+	MemoryWeight   float64 `json:"-"`
+	CpuQuotient    float64 `json:"-"`
+	MemoryQuotient float64 `json:"-"`
 }
 
 // Construct a `Node` use all resources, tasks list
-func NewConsistNode(id string, all Resource) Node {
+func NewConsistNode(id string, all Resource, runFrom time.Time) Node {
 	var remaining *Resource = all.ClonePtr()
 	return Node{
 		ID:                id,
 		AvailableResource: all,
 		RemainingResource: remaining,
 		Price:             0.,
-		RunFrom:           time.Now().UTC(),
+		RunFrom:           runFrom,
 		CpuWeight:         0.,
 		MemoryWeight:      0.,
 		CpuQuotient:       0.,
