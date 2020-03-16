@@ -14,7 +14,7 @@ func ListNodes() (string, error) {
 	var err error
 	var result string
 	api := client.CoreV1()
-	opts := metav1.ListOptions {}
+	opts := metav1.ListOptions{}
 	if nodes, err = api.Nodes().List(opts); err != nil {
 		return result, err
 	}

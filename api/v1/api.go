@@ -10,14 +10,13 @@ import (
 
 	_ "github.com/sirupsen/logrus"
 
-	"github.com/kobeHub/Pegasus-engine/pkg/common/router"
 	"github.com/kobeHub/Pegasus-engine/api/v1/service"
+	"github.com/kobeHub/Pegasus-engine/pkg/common/router"
 )
 
 type Api struct {
 	mtx sync.RWMutex
 }
-
 
 var corsHeaders = map[string]string{
 	"Access-Control-Allow-Headers":  "Accept, Authorization, Content-Type, Origin",
