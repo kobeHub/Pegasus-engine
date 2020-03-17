@@ -1,14 +1,14 @@
 package models
 
 type Resource struct {
-	CpuCores float64  `json:"cpu"`
-	Memory   float64  `json:"memory"`
+	CpuCores float64 `json:"cpu"`
+	Memory   float64 `json:"memory"`
 }
 
 func NewResource(cpuCores, memory float64) Resource {
 	return Resource{
 		CpuCores: cpuCores,
-		Memory: memory,
+		Memory:   memory,
 	}
 }
 

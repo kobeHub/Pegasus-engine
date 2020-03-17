@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	//kube "k8s.io/client-go/kubernetes"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	_ "github.com/sirupsen/logrus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
@@ -20,6 +20,7 @@ func ListNodes() ([]models.Node, error) {
 	}
 	for _, node := range nodes.Items {
 		uid := string(node.ObjectMeta.UID)
+		name := node.ObjectMeta.Name
 		runFrom := node.ObjectMeta.CreationTimestamp.Time
 		var newNode models.Node
 
@@ -38,12 +39,24 @@ func ListNodes() ([]models.Node, error) {
 
 		if spot := node.ObjectMeta.Labels["node-spot"]; spot != "false" {
 			// TODO: get price
-			newNode = models.NewDemandNode(uid, availRes, 1., runFrom)
+			newNode = models.NewDemandNode(uid, name, availRes, 1., runFrom)
 		} else {
-			newNode = models.NewConsistNode(uid, availRes, runFrom)
+			newNode = models.NewConsistNode(uid, name, availRes, runFrom)
 		}
 		result = append(result, newNode)
 
 	}
+	return result, nil
+}
+
+// Get uid according to name
+func getNodeID(name string) (string, error) {
+	var result string
+	opts := metav1.GetOptions{}
+	node, err := corev1api.Nodes().Get(name, opts)
+	if err != nil {
+		return result, err
+	}
+	result = string(node.ObjectMeta.UID)
 	return result, nil
 }

@@ -12,19 +12,19 @@ const (
 )
 
 type Pod struct {
-	PodID            string
-	RequiredResource Resource
-	NodeID           string
-	Status           PodPhase
-	PodType          string
+	PodID            string   `json:"podId,required"`
+	RequiredResource Resource `json:"resource,required"`
+	NodeID           string   `json:"nodeId,omitempty"`
+	Status           PodPhase `json:"status"`
+	PodType          string   `json:"podType,omitempty"`
 }
 
-func NewPod(id string, cpu, mem float64) Pod {
+func NewPod(id string, cpu, mem float64, nid string, status PodPhase) Pod {
 	return Pod{
 		PodID:            id,
 		RequiredResource: NewResource(cpu, mem),
-		NodeID:           "",
-		Status:           Unknown,
+		NodeID:           nid,
+		Status:           status,
 		PodType:          "",
 	}
 }

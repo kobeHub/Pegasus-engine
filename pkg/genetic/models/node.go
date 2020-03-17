@@ -4,6 +4,7 @@ import "time"
 
 type Node struct {
 	ID                string    `json:"id,required"`
+	Name              string    `json:"name,required"`
 	AvailableResource Resource  `json:"availableResource,required"`
 	RemainingResource *Resource `json:"remainingResouece,omitempty"`
 	// On-demand to pay price (￥/h), package in mouthly price is 0
@@ -19,10 +20,11 @@ type Node struct {
 }
 
 // Construct a `Node` use all resources, tasks list
-func NewConsistNode(id string, all Resource, runFrom time.Time) Node {
+func NewConsistNode(id, name string, all Resource, runFrom time.Time) Node {
 	var remaining *Resource = all.ClonePtr()
 	return Node{
 		ID:                id,
+		Name:              name,
 		AvailableResource: all,
 		RemainingResource: remaining,
 		Price:             0.,
@@ -34,10 +36,11 @@ func NewConsistNode(id string, all Resource, runFrom time.Time) Node {
 	}
 }
 
-func NewDemandNode(id string, all Resource, price float64, run_from time.Time) Node {
+func NewDemandNode(id, name string, all Resource, price float64, run_from time.Time) Node {
 	var remaining *Resource = all.ClonePtr()
 	return Node{
 		ID:                id,
+		Name:              name,
 		AvailableResource: all,
 		RemainingResource: remaining,
 		Price:             price,

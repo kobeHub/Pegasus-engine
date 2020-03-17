@@ -21,3 +21,11 @@ func GetNS(w http.ResponseWriter, r *http.Request) {
 		respond(w, res)
 	}
 }
+
+func GetReschedulablePods(w http.ResponseWriter, r *http.Request) {
+	if res, err := k8s.ListReschedulablePods(); err != nil {
+		respondError(w, apiError{errorInternal, err}, "")
+	} else {
+		respond(w, res)
+	}
+}
