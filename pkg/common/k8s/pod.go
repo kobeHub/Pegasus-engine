@@ -3,8 +3,8 @@ package k8s
 import (
 	"errors"
 
-	_ "github.com/sirupsen/logrus"
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
+	_ "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -46,9 +46,9 @@ func ListReschedulablePods() ([]models.Pod, error) {
 				}
 				cpu += float64(ccpu) / 1000
 				cmom, ok := container.Resources.Limits.Memory().AsDec().Unscaled()
-				if ! ok {
+				if !ok {
 					return results, errors.New("Parse container memory error")
-				 }
+				}
 				mem += float64(cmom) / 1024 / 1024
 			}
 			status := models.PodPhase(pod.Status.Phase)
