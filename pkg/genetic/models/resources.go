@@ -17,6 +17,11 @@ func (info *Resource) Sub(ano Resource) {
 	info.Memory -= ano.Memory
 }
 
+func (info *Resource) Add(ano Resource) {
+	info.CpuCores += ano.CpuCores
+	info.Memory += ano.Memory
+}
+
 func (info *Resource) ClonePtr() *Resource {
 	return &Resource{CpuCores: info.CpuCores, Memory: info.Memory}
 }

@@ -9,14 +9,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func ListReschedulablePods() ([]models.Pod, error) {
+func ListRescheduleLabelPods(label string) ([]models.Pod, error) {
 	var results []models.Pod
 	nss, err := GetWorkNS()
 	if err != nil {
 		return results, err
 	}
 	opts := metav1.ListOptions{
-		LabelSelector: "reschedulable=true",
+		LabelSelector: label,
 	}
 
 	for _, ns := range nss {

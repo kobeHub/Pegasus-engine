@@ -11,13 +11,28 @@ import (
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
 
-func ListNodes() ([]models.Node, error) {
+func ListReschedulableNodes(unReschPods []models.Pod) ([]models.Node, error) {
 	var result []models.Node
 	opts := metav1.ListOptions{}
+
 	nodes, err := corev1api.Nodes().List(opts)
 	if err != nil {
 		return result, err
 	}
+
+	// Node resources can be reschedualed is:
+	// Node allocatable sub daemonsets and cannot reschedualed
+	// pods' resources
+	noAvailResource := make(map[string]*models.Resource, len(nodes.Items))
+	for _, pod := range unReschPods {
+		id := string(pod.NodeID)
+		if _, ok := noAvailResource[id]; !ok {
+			noAvailResource[id] = pod.RequiredResource.ClonePtr()
+		} else {
+			noAvailResource[id].Add(pod.RequiredResource)
+		}
+	}
+
 	for _, node := range nodes.Items {
 		uid := string(node.ObjectMeta.UID)
 		name := node.ObjectMeta.Name
@@ -36,6 +51,7 @@ func ListNodes() ([]models.Node, error) {
 		}
 		memo := float64(mem) / 1024 / 1024
 		availRes := models.NewResource(cpuCores, memo)
+		availRes.Sub(*noAvailResource[uid])
 
 		if spot := node.ObjectMeta.Labels["node-spot"]; spot != "false" {
 			// TODO: get price

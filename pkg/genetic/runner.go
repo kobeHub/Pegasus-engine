@@ -13,20 +13,21 @@ func RunGeneticAlgorithm() (map[string]string, float64, error) {
 		schedule   map[string]string
 		totalCosts float64
 	)
-	nodes, err := k8s.ListNodes()
-	if err != nil {
-		return schedule, totalCosts, err
-	}
 	pods, err := k8s.ListReschedulablePods()
 	if err != nil {
 		return schedule, totalCosts, err
 	}
+	nodes, err := k8s.ListReschedulableNodes(pods)
+	if err != nil {
+		return schedule, totalCosts, err
+	}
+
 	originalAssign := make(map[string]string, len(pods))
 	for _, pod := range pods {
 		originalAssign[pod.PodID] = pod.NodeID
 	}
 
-	genetic := Genetic{
+	g := Genetic{
 		AllNodes:           nodes,
 		AllPods:            pods,
 		OriginalAssignment: originalAssign,

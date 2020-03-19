@@ -45,7 +45,7 @@ func run(ctx context.Context) int {
 	api.Register(router)
 	routerH := logmw.Middleware(router)
 	srv := http.Server{Addr: *srvAddr, Handler: routerH}
-	srvc := make(chan struct{})
+	srvc := make(chan bool)
 
 	go func() {
 		log.WithFields(log.Fields{
@@ -73,6 +73,9 @@ func run(ctx context.Context) int {
 	)
 	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
 
+	// Watch tasks
+	go k8s.WatchPods(ctx, srvc)
+
 	for {
 		select {
 		case <-term:
@@ -92,7 +95,7 @@ func run(ctx context.Context) int {
 
 			return 0
 		case <-srvc:
-			log.Info("Error exist.")
+			log.Info("Error exist")
 			return 1
 		}
 	}
