@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/kobeHub/Pegasus-engine/pkg/common/k8s"
-	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
+	//"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
 )
 
 func RunGeneticAlgorithm() (map[string]string, float64, error) {
@@ -13,7 +13,7 @@ func RunGeneticAlgorithm() (map[string]string, float64, error) {
 		schedule   map[string]string
 		totalCosts float64
 	)
-	pods, err := k8s.ListReschedulablePods()
+	pods, err := k8s.ListRescheduleLabelPods("reschedulable=true")
 	if err != nil {
 		return schedule, totalCosts, err
 	}

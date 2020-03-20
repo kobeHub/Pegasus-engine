@@ -56,7 +56,7 @@ func run(ctx context.Context) int {
 			log.WithFields(log.Fields{
 				"Error": err,
 			}).Error("Server listen error")
-			close(srvc)
+			srvc <- false
 		}
 		defer func() {
 			if err := srv.Close(); err != nil {
@@ -74,7 +74,9 @@ func run(ctx context.Context) int {
 	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
 
 	// Watch tasks
-	go k8s.WatchPods(ctx, srvc)
+	watchCtx, watchCancel := context.WithCancel(ctx)
+	defer watchCancel()
+	go k8s.WatchPods(watchCtx, srvc)
 
 	for {
 		select {
@@ -92,9 +94,11 @@ func run(ctx context.Context) int {
 			case <-ctx.Done():
 				log.Info("Server timeout 1 seconds...")
 			}
+			close(srvc)
 
 			return 0
 		case <-srvc:
+			close(srvc)
 			log.Info("Error exist")
 			return 1
 		}
