@@ -15,56 +15,6 @@ import (
 
 // Watch the pods phase. When a new pod is created and
 // stay `Pending`, call the cluster scale up.
-/*
-func WatchPods(ctx context.Context, srvc chan error) {
-	opts := metav1.ListOptions{}
-	watcher, err := corev1api.Pods("").Watch(opts)
-	if err != nil {
-		log.Error("Get pods watcher: ", err)
-		srvc<-err
-		return
-	}
-	resultChan := watcher.ResultChan()
-	for event := range resultChan {
-		pod, ok := event.Object.(*v1.Pod)
-		if !ok {
-			log.Error("Get event pod object error: unexpected type")
-			srvc<-err
-			return
-		}
-		switch event.Type {
-		case watch.Added:
-			podPhase := pod.Status.Phase
-			switch podPhase {
-			case v1.PodRunning:
-				log.WithFields(log.Fields{
-					"Pod name": pod.Name,
-					"Namespace": pod.Namespace,
-				}).Info("Pod schedule successfully!")
-			case v1.PodPending:
-				log.WithFields(log.Fields{
-					"Pod name": pod.Name,
-					"Namespace": pod.Namespace,
-				}).Info("Pod pending because resource short")
-				// TODO: compute proprely node type, call cloud provider
-				// api to scale up cluster
-			}
-		case watch.Deleted:
-			// TODO: Delete a pod after a duration, check if there is a more
-			// efficient assignments
-			log.WithFields(log.Fields{
-				"Pod name": pod.Name,
-				"Namespace": pod.Namespace,
-			}).Info("Pod deleted waiting for a cluster steady state...")
-		}
-		// Return early if context canceled
-		select {
-		case <-ctx.Done():
-			return
-		}
-	}
-}*/
-
 func WatchPods(ctx context.Context, srvc chan bool) {
 	handler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
