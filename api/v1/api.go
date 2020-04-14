@@ -48,4 +48,7 @@ func Register(r *router.Router) {
 	r.Get("/nodes", wrap(service.GetNodes))
 	r.Get("/ns", wrap(service.GetNS))
 	r.Get("/pods", wrap(service.GetReschedulablePods))
+
+	repoRouter := r.WithPrefix("/repo")
+	repoRouter.Post("/getRepo", wrap(service.GetRepo))
 }

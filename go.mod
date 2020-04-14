@@ -3,6 +3,7 @@ module pegasus-engine
 go 1.13
 
 require (
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.113
 	github.com/json-iterator/go v1.1.9
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/kobeHub/Pegasus-engine v0.0.0-00010101000000-000000000000

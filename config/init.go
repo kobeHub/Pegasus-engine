@@ -5,6 +5,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/kobeHub/Pegasus-engine/internal/registry"
 )
 
 func Init(env string) {
@@ -39,4 +41,7 @@ func Init(env string) {
 			log.Fatalf("Other fatal error: %s", err)
 		}
 	}
+
+	// init alicloud sdk client
+	registry.InitClient()
 }
