@@ -51,4 +51,8 @@ func Register(r *router.Router) {
 
 	repoRouter := r.WithPrefix("/repo")
 	repoRouter.Post("/getRepo", wrap(service.GetRepo))
+	repoRouter.Post("/getRepoList", wrap(service.GetRepoList))
+	repoRouter.Post("/getRepoTags", wrap(service.GetRepoTags))
+	repoRouter.Post("/createRepo", wrap(service.CreateRepo))
+	repoRouter.Post("/createRepoRule", wrap(service.CreateRepoBuildRule))
 }

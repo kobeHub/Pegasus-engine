@@ -8,12 +8,30 @@ import (
 )
 
 // Basic imge struct
-type repoImage struct {
-	Name      string  `json:"name,required"`
+type repoInfo struct {
+	Name string `json:"name,required"`
+}
+
+type pageInfo struct {
+	Name string `json:"name,omitempty"`
+	Page string `json:"pega,required"`
+}
+
+type createInfo struct {
+	Name string `json:"name,required"`
+	Summary string `json:"summary,required"`
+	IsOverSea bool `json:"isOverSea,required"`
+	DisableCache bool `json:"disableCache,required"`
+}
+
+type ruleInfo struct {
+	RepoName string `json:"repoName,required"`
+	Location string `json:"location,required"`
+	Tag string `json:"tag,required"`
 }
 
 func GetRepo(w http.ResponseWriter, r *http.Request) {
-	var info repoImage
+	var info repoInfo
 	jsonData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		respondError(w, apiError{errorBadData, err}, "")
@@ -24,9 +42,85 @@ func GetRepo(w http.ResponseWriter, r *http.Request) {
 		respondError(w, apiError{errorBadData, err}, "")
 		return
 	}
-	if err := registry.GetRepo(info.Name); err != nil {
+	if data, err := registry.GetRepo(info.Name); err != nil {
 		respondError(w, apiError{errorInternal, err}, "")
 	} else {
-		respond(w, "")
+		respond(w, data)
+	}
+}
+
+func GetRepoList(w http.ResponseWriter, r *http.Request) {
+	var info pageInfo
+	jsonData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+
+	if err := json.Unmarshal(jsonData, &info); err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+	if data, err := registry.GetRepoList(info.Page); err != nil {
+		respondError(w, apiError{errorInternal, err}, "")
+	} else {
+		respond(w, data)
+	}
+}
+
+func GetRepoTags(w http.ResponseWriter, r *http.Request) {
+	var info pageInfo
+	jsonData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+
+	if err := json.Unmarshal(jsonData, &info); err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+	if data, err := registry.GetRepoTags(info.Name, info.Page); err != nil {
+		respondError(w, apiError{errorInternal, err}, "")
+	} else {
+		respond(w, data)
+	}
+}
+
+func CreateRepo(w http.ResponseWriter, r *http.Request) {
+	var info createInfo
+	jsonData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+
+	if err := json.Unmarshal(jsonData, &info); err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+	if data, err := registry.CreateRepo(info.Name, info.Summary, info.IsOverSea, info.DisableCache); err != nil {
+		respondError(w, apiError{errorInternal, err}, "")
+	} else {
+		respond(w, data)
+	}
+}
+
+func CreateRepoBuildRule(w http.ResponseWriter, r *http.Request) {
+	var info ruleInfo
+	jsonData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+
+	if err := json.Unmarshal(jsonData, &info); err != nil {
+		respondError(w, apiError{errorBadData, err}, "")
+		return
+	}
+	if data, err := registry.CreateRepoBuildRule(info.RepoName, info.Location, info.Tag); err != nil {
+		respondError(w, apiError{errorInternal, err}, "")
+	} else {
+		respond(w, data)
 	}
 }
