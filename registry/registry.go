@@ -153,6 +153,25 @@ func CreateRepo(name, summary string, isOverSea, disableCache bool) (int64, erro
 	return gjson.Get(response.GetHttpContentString(), "data.repoId").Int(), nil
 }
 
+// Build rules
+func GetRepoBuildRule(repoName string) ([]BuildRule, error) {
+	var res []BuildRule
+	request := buildRequest("GET", fmt.Sprintf("/repos/%s/%s/rules", NS, repoName), "")
+
+	response, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Fatal": err,
+		}).Error("Alicloud request process error")
+		return res, err
+	}
+	raw := response.GetHttpContentString()
+	for _, rule := range gjson.Get(raw, "data.buildRules").Array() {
+		res = append(res, parseBuildRule(rule))
+	}
+	return res, nil
+}
+
 func CreateRepoBuildRule(repoName, location, tag string) (int64, error) {
 	body := fmt.Sprintf(`
 {
@@ -174,4 +193,56 @@ func CreateRepoBuildRule(repoName, location, tag string) (int64, error) {
 		return 0., err
 	}
 	return gjson.Get(response.GetHttpContentString(), "data.buildRuleId").Int(), nil
+}
+
+func StartRepoBuildByRule(repoName, buildRuleId string) (bool, error) {
+	request := buildRequest("PUT", fmt.Sprintf("/repos/%s/%s/rules/%v/build", NS, repoName, buildRuleId), "")
+
+	_, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Fatal": err,
+		}).Error("Alicloud request process error")
+		return false, err
+	}
+	return true, nil
+}
+
+func DeleteRepoBuildRule(repoName, buildRuleId string) (bool, error) {
+	request := buildRequest("DELETE", fmt.Sprintf("/repos/%s/%s/rules/%v", NS, repoName, buildRuleId), "")
+
+	_, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Fatal": err,
+		}).Error("Alicloud request process error")
+		return false, err
+	}
+	return true, nil
+}
+
+func DeleteImage(repoName, tag string) (bool, error) {
+	request := buildRequest("DELETE", fmt.Sprintf("/repos/%s/%s/tags/%s", NS, repoName, tag), "")
+
+	_, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Fatal": err,
+		}).Error("Alicloud request process error")
+		return false, err
+	}
+	return true, nil
+}
+
+func DeleteRepo(repoName string) (bool, error) {
+	request := buildRequest("DELETE", fmt.Sprintf("/repos/%s/%s", NS, repoName), "")
+
+	_, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Fatal": err,
+		}).Error("Alicloud request process error")
+		return false, err
+	}
+	return true, nil
 }

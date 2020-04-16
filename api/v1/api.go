@@ -55,4 +55,9 @@ func Register(r *router.Router) {
 	repoRouter.Post("/getRepoTags", wrap(service.GetRepoTags))
 	repoRouter.Post("/createRepo", wrap(service.CreateRepo))
 	repoRouter.Post("/createRepoRule", wrap(service.CreateRepoBuildRule))
+	repoRouter.Post("/getRepoBuildRule", wrap(service.GetRepoBuildRule))
+	repoRouter.Post("/startRepoBuild", wrap(service.StartRepoBuildByRule))
+	repoRouter.Post("/deleteRepoBuildRule", wrap(service.DeleteRepoBuildRule))
+	repoRouter.Post("/deleteImage", wrap(service.DeleteImage))
+	repoRouter.Post("/deleteRepo", wrap(service.DeleteRepo))
 }

@@ -49,6 +49,12 @@ type TagsList struct {
 	Tags     []Tag `json:"tags"`
 }
 
+// Build rule
+type BuildRule struct {
+	BuildRuleId string `json:"buildRuleId"`
+	ImageTag string `json:"imageTag"`
+}
+
 // Build from alicloud response
 func parseRepo(data gjson.Result) Repo {
 	name := data.Get("repoName").String()
@@ -72,5 +78,12 @@ func parseTag(data gjson.Result) Tag {
 		Size:    data.Get("imageSize").Int(),
 		Status:  data.Get("status").String(),
 		Digest:  data.Get("digest").String(),
+	}
+}
+
+func parseBuildRule(data gjson.Result) BuildRule {
+	return BuildRule {
+		BuildRuleId: data.Get("buildRuleId").String(),
+		ImageTag: data.Get("imageTag").String(),
 	}
 }

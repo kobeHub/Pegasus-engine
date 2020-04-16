@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/kobeHub/Pegasus-engine/internal/registry"
+	"github.com/kobeHub/Pegasus-engine/registry"
 )
 
 func Init(env string) {
