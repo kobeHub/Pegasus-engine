@@ -88,7 +88,7 @@ func GetRepoList(page string) (RepoList, error) {
 // Get repos tags list
 func GetRepoTags(repoName, page string) (TagsList, error) {
 	var res TagsList
-	request := buildRequest("GET", fmt.Sprintf("/repos/%s/%s/tags", NS, repoName), "")
+	request := buildRequest("GET", fmt.Sprintf("/repos/%v/%v/tags", NS, repoName), "")
 	request.QueryParams["PageSize"] = "10"
 	request.QueryParams["Page"] = page
 
