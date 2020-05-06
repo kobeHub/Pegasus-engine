@@ -2,6 +2,7 @@ package genetic
 
 import (
 	"github.com/kobeHub/Pegasus-engine/pkg/genetic/models"
+	"math"
 	"testing"
 	"time"
 )
@@ -49,11 +50,12 @@ func TestGeneticAlgorithm(t *testing.T) {
 		OriginalAssignment: make(map[string]string),
 		Size:               212,
 		GenerationNum:      1000,
+		BestPrice:          math.MaxFloat64,
 	}
 	t.Logf("Genetic: %v", g)
 
-	resPopu := g.RunGeneticNSGA3(6)
-	best := g.GetBestPriceIndividual(resPopu)
+	_ = g.RunGeneticNSGA3(6)
+	best := g.GetBestPriceIndividual()
 	t.Log(best)
 	t.Log(best.Assignment)
 }

@@ -241,3 +241,17 @@ func (info *Individual) ConstraintDominate(ano Individual) bool {
 		return false
 	}
 }
+
+/// Population best price Individual, return false means all the individual is
+/// not feasible
+func (popu Population) BestPriceIndividual() (Individual, float64, bool) {
+	bestPrice := math.MaxFloat64
+	var bestId int
+	for id, info := range popu {
+		if info.IsFeasible && info.ObjectiveValues[0] < bestPrice {
+			bestPrice = info.ObjectiveValues[0]
+			bestId = id
+		}
+	}
+	return *popu[bestId], bestPrice, bestPrice != math.MaxFloat64
+}

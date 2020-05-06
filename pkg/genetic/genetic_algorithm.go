@@ -2,7 +2,6 @@ package genetic
 
 import (
 	"github.com/rs/xid"
-	"math"
 	"math/rand"
 	"time"
 
@@ -11,16 +10,18 @@ import (
 )
 
 type Genetic struct {
-	AllNodes           []models.Node
-	AllPods            []models.Pod
-	OriginalAssignment map[string]string
-	Size               int
-	GenerationNum      int
+	AllNodes            []models.Node
+	AllPods             []models.Pod
+	OriginalAssignment  map[string]string
+	Size                int
+	GenerationNum       int
+	BestPrice           float64
+	BestPriceIndividual models.Individual
 }
 
 // Generate random feasible assign according to current
 // Pods and Nodes
-func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
+func (g *Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	nodes := make([]models.Node, len(g.AllNodes))
 
 	// Reset Nodes remaining resources
@@ -69,7 +70,7 @@ func (g Genetic) GenerateRandomFeasibleIndividual() *models.Individual {
 	return info
 }
 
-func (g Genetic) GenerateRandomFeasiblePopulation() models.Population {
+func (g *Genetic) GenerateRandomFeasiblePopulation() models.Population {
 	popu := make([]*models.Individual, g.Size)
 	for i := 0; i < g.Size; i++ {
 		popu[i] = g.GenerateRandomFeasibleIndividual()
@@ -78,13 +79,13 @@ func (g Genetic) GenerateRandomFeasiblePopulation() models.Population {
 }
 
 // Use cluster current state initialize population
-func (g Genetic) GenerateInitPopulation() models.Population {
+func (g *Genetic) GenerateInitPopulation() models.Population {
 	popu := make([]*models.Individual, g.Size)
 	return popu
 }
 
 // Combine two Populations into one
-func (g Genetic) combinePopulation(first, second models.Population) models.Population {
+func (g *Genetic) combinePopulation(first, second models.Population) models.Population {
 	result := make([]*models.Individual, g.Size*2)
 	for i := 0; i < g.Size; i++ {
 		result[i] = first[i]
@@ -94,7 +95,7 @@ func (g Genetic) combinePopulation(first, second models.Population) models.Popul
 }
 
 // Select superior one from random two
-func (g Genetic) binarySelect(popu models.Population) models.Individual {
+func (g *Genetic) binarySelect(popu models.Population) models.Individual {
 	first := popu[rand.Intn(g.Size)]
 	second := popu[rand.Intn(g.Size)]
 
@@ -106,7 +107,7 @@ func (g Genetic) binarySelect(popu models.Population) models.Individual {
 }
 
 // Constrainted nsga iii
-func (g Genetic) constraintedBinarySelect(popu models.Population) models.Individual {
+func (g *Genetic) constraintedBinarySelect(popu models.Population) models.Individual {
 	first := popu[rand.Intn(g.Size/2)]
 	second := popu[rand.Intn(g.Size/2+rand.Intn(g.Size/2))]
 
@@ -136,7 +137,7 @@ func (g Genetic) constraintedBinarySelect(popu models.Population) models.Individ
 }
 
 // Make new population from parent
-func (g Genetic) makeNewPopulation(parent models.Population) models.Population {
+func (g *Genetic) makeNewPopulation(parent models.Population) models.Population {
 	new := make([]*models.Individual, g.Size)
 	var (
 		first  models.Individual
@@ -156,7 +157,7 @@ func (g Genetic) makeNewPopulation(parent models.Population) models.Population {
 }
 
 // Run genetic algirithm NSGA3 implements
-func (g Genetic) RunGeneticNSGA3(num_segaments int) models.Population {
+func (g *Genetic) RunGeneticNSGA3(num_segaments int) models.Population {
 	nsga3 := NSGA3{
 		Ops: NSGA2{},
 	}
@@ -182,7 +183,7 @@ func (g Genetic) RunGeneticNSGA3(num_segaments int) models.Population {
 //******** Individual operations to generate new *********
 
 // Select random point to crossover
-func (g Genetic) reproduce(first, second models.Individual) models.Individual {
+func (g *Genetic) reproduce(first, second models.Individual) models.Individual {
 	num_pods := len(first.AllPods)
 	newAssign := make(map[string]string, num_pods)
 	randomCut := rand.Intn(num_pods)
@@ -209,7 +210,7 @@ func (g Genetic) reproduce(first, second models.Individual) models.Individual {
 }
 
 // Mutate individual via 4 operations
-func (g Genetic) mutate(info *models.Individual) {
+func (g *Genetic) mutate(info *models.Individual) {
 	num_pods := len(g.AllPods)
 	num_nodes := len(g.AllNodes)
 
@@ -285,14 +286,6 @@ func shuffleNodes(nodes []models.Node) {
 	}
 }
 
-func (g Genetic) GetBestPriceIndividual(popu models.Population) models.Individual {
-	bestPrice := math.MaxFloat64
-	var bestId int
-	for id, info := range popu {
-		if info.ObjectiveValues[0] < bestPrice {
-			bestPrice = info.ObjectiveValues[0]
-			bestId = id
-		}
-	}
-	return *popu[bestId]
+func (g *Genetic) GetBestPriceIndividual() models.Individual {
+	return g.BestPriceIndividual
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func GetNodes(w http.ResponseWriter, r *http.Request) {
-	pods, err := k8s.ListRescheduleLabelPods("reschedulable=false")
+	pods, err := k8s.ListRescheduleLabelPods("pegasus.state/reschedulable=false")
 	if err != nil {
 		respondError(w, apiError{errorInternal, err}, "")
 		return
@@ -29,7 +29,7 @@ func GetNS(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetReschedulablePods(w http.ResponseWriter, r *http.Request) {
-	if res, err := k8s.ListRescheduleLabelPods("reschedulable=true"); err != nil {
+	if res, err := k8s.ListRescheduleLabelPods("pegasus.state/reschedulable=true"); err != nil {
 		respondError(w, apiError{errorInternal, err}, "")
 	} else {
 		respond(w, res)

@@ -26,7 +26,7 @@ func ListRescheduleLabelPods(label string) ([]models.Pod, error) {
 			return results, err
 		}
 		for _, pod := range podList.Items {
-			uid := string(pod.ObjectMeta.UID)
+			uid := string(pod.ObjectMeta.Name)
 			nid := ""
 			if nname := pod.Spec.NodeName; nname != "" {
 				nid, err = getNodeID(nname)

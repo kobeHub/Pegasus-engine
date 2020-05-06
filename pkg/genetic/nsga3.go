@@ -13,7 +13,7 @@ type NSGA3 struct {
 	Ops NSGA2
 }
 
-func (info NSGA3) GenerateNextPopulation(t int, g Genetic, parent models.Population,
+func (info NSGA3) GenerateNextPopulation(t int, g *Genetic, parent models.Population,
 	rps []*models.ReferencePoint) models.Population {
 	var (
 		nextPopu models.Population
@@ -32,6 +32,11 @@ func (info NSGA3) GenerateNextPopulation(t int, g Genetic, parent models.Populat
 
 	lastFront := fronts[cnt-1]
 	if len(tmpPopu) == g.Size {
+		tmpBestIndi, tmpBestPrice, feasible := tmpPopu.BestPriceIndividual()
+		if feasible && tmpBestPrice < g.BestPrice {
+			g.BestPrice = tmpBestPrice
+			g.BestPriceIndividual = tmpBestIndi
+		}
 		return tmpPopu
 	} else {
 		nextPopu = info.unionFrontsUntilLevel(fronts, cnt-1)
@@ -40,6 +45,13 @@ func (info NSGA3) GenerateNextPopulation(t int, g Genetic, parent models.Populat
 		utils.Associate(tmpPopu, rps)
 		info.computeNicheCount(nextPopu, rps)
 		utils.Niching(num_remaining_indi, &tmpPopu, rps, lastFront, &nextPopu)
+
+		tmpBestIndi, tmpBestPrice, feasible := nextPopu.BestPriceIndividual()
+		if feasible && tmpBestPrice < g.BestPrice {
+			g.BestPrice = tmpBestPrice
+			g.BestPriceIndividual = tmpBestIndi
+		}
+
 		return nextPopu
 	}
 }

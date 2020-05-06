@@ -18,26 +18,26 @@ type pageInfo struct {
 }
 
 type createInfo struct {
-	Name string `json:"name,required"`
-	Summary string `json:"summary,required"`
-	IsOverSea bool `json:"isOverSea,required"`
-	DisableCache bool `json:"disableCache,required"`
+	Name         string `json:"name,required"`
+	Summary      string `json:"summary,required"`
+	IsOverSea    bool   `json:"isOverSea,required"`
+	DisableCache bool   `json:"disableCache,required"`
 }
 
 type ruleInfo struct {
 	RepoName string `json:"repoName,required"`
 	Location string `json:"location,required"`
-	Tag string `json:"tag,required"`
+	Tag      string `json:"tag,required"`
 }
 
 type buildInfo struct {
-	RepoName string `json:"repoName"`
+	RepoName    string `json:"repoName"`
 	BuildRuleId string `json:"buildRuleId"`
 }
 
 type imageInfo struct {
 	RepoName string `json:"repoName"`
-	Tag string `json:"tag"`
+	Tag      string `json:"tag"`
 }
 
 func GetRepo(w http.ResponseWriter, r *http.Request) {
