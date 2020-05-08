@@ -34,6 +34,9 @@ test:
 vet:
 	@go vet $(VETPACKAGES)
 
+genetest:
+	@go test -run TestGeneticAlgorithm ./pkg/genetic -v -count 1
+
 # docker:
 #    @docker build -t name .
 
