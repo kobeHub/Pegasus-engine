@@ -12,6 +12,7 @@ type Node struct {
 	// Use UTC time to record the node started timestamp
 	RunFrom time.Time      `json:"runFrom,omitempty"`
 	Pods    map[string]Pod `json:"pods,omitempty"`
+	IsDemand       bool    `json:"isDemand"`
 
 	CpuWeight      float64 `json:"-"`
 	MemoryWeight   float64 `json:"-"`
@@ -29,6 +30,7 @@ func NewConsistNode(id, name string, all Resource, runFrom time.Time) Node {
 		RemainingResource: remaining,
 		Price:             0.,
 		RunFrom:           runFrom,
+		IsDemand:          false,
 		CpuWeight:         0.,
 		MemoryWeight:      0.,
 		CpuQuotient:       0.,
@@ -45,6 +47,7 @@ func NewDemandNode(id, name string, all Resource, price float64, run_from time.T
 		RemainingResource: remaining,
 		Price:             price,
 		RunFrom:           run_from,
+		IsDemand:          true,
 		CpuWeight:         0.,
 		MemoryWeight:      0.,
 		CpuQuotient:       0.,

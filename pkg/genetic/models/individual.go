@@ -10,7 +10,7 @@ package models
 
 import (
 	"math"
-	"time"
+	_ "time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -175,7 +175,9 @@ func (info *Individual) resourceUtilization() float64 {
 func (info *Individual) ondemandPrice() float64 {
 	price := 0.
 	for _, node := range info.AllNodes {
-		price += time.Now().UTC().Sub(node.RunFrom).Hours() * node.Price
+		if node.IsDemand && len(node.Pods) != 0 {
+			price +=  24 * node.Price
+		}
 	}
 	return price
 }
