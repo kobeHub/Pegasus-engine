@@ -1,5 +1,6 @@
 TARGET=pegasus_engine
 REGISTRY=innohubregister
+NAME=pegasus-engine
 VERSION=0.1.0
 BUILD=`date +%FT%T%Z`
 
@@ -42,13 +43,13 @@ genetest:
 docker: docker-version
 
 docker-version:
-	docker build -t ${REGISTRY}/${TARGET}:${VERSION} .
+	docker build -t ${REGISTRY}/${NAME}:${VERSION} .
 
 docker-tag:
-	docker tag ${REGISTRY}/${TARGET}:${VERSION} ${REGISTRY}/${TARGET}:latest
+	docker tag ${REGISTRY}/${NAME}:${VERSION} ${REGISTRY}/${NAME}:latest
 
 push: docker-version docker-tag
-	docker push ${REGISTRY}/${TARGET}:${VERSION}; docker push ${REGISTRY}/${TARGET}:latest
+	docker push ${REGISTRY}/${NAME}:${VERSION}; docker push ${REGISTRY}/${NAME}:latest
 
 clean:
 	@if [ -f ${TARGET} ] ; then rm ${TARGET} ; fi
