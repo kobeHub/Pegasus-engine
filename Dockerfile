@@ -8,6 +8,6 @@ RUN go mod download
 
 RUN GOOS=linux CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix cgo -o=pegasus_engine -tags=jsoniter cmd/pegasus_engine.go
 
-FROM alpine:3.9 as prod
+FROM alpine:latest as local
 COPY --from=build /go/cache/pegasus_engine /
 CMD ["/pegasus_engine"]

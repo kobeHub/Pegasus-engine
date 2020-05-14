@@ -1,4 +1,5 @@
 TARGET=pegasus_engine
+REGISTRY=innohubregister
 VERSION=0.1.0
 BUILD=`date +%FT%T%Z`
 
@@ -37,10 +38,19 @@ vet:
 genetest:
 	@go test -run TestGeneticAlgorithm ./pkg/genetic -v -count 1
 
-# docker:
-#    @docker build -t name .
+
+docker: docker-version
+
+docker-version:
+	docker build -t ${REGISTRY}/${TARGET}:${VERSION} .
+
+docker-tag:
+	docker tag ${REGISTRY}/${TARGET}:${VERSION} ${REGISTRY}/${TARGET}:latest
+
+push: docker-version docker-tag
+	docker push ${REGISTRY}/${TARGET}:${VERSION}; docker push ${REGISTRY}/${TARGET}:latest
 
 clean:
 	@if [ -f ${TARGET} ] ; then rm ${TARGET} ; fi
 
-.PHONY: default fmt fmt-check install test vet docker clean
+.PHONY: default fmt fmt-check install test vet clean
